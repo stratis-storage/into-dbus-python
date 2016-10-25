@@ -40,5 +40,5 @@ setuptools.setup(
     ],
     package_dir={"": "src"},
     packages=setuptools.find_packages("src"),
-    url="https://github.com/mulkieran/into-dbus-python"
+    url="https://github.com/stratis-storage/into-dbus-python"
     )
