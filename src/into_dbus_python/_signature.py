@@ -117,5 +117,5 @@ def signature(dbus_object):
     elif isinstance(dbus_object, dbus.UInt64):
         return 't'
 
-    elif isinstance(dbus_object, dbus.types.UnixFd):
+    elif isinstance(dbus_object, dbus.types.UnixFd): # pragma: no cover
         return 'h'
