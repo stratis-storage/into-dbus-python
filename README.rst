@@ -107,6 +107,15 @@ list, since both are iterable. ::
 However, the inhabitant of a dbus.Dictionary type must be an object with an
 items() method which yields pairs of keys and values, e.g., a dict.
 
+The signature() function
+------------------------
+This library also exposes a function, signature(), which, given a value in
+dbus-python types, calculates its signature. It has the following relation
+to the xformer() function.
+
+Let S be a signature. Let C be a list of values in Python core types.
+Let V = xformer(S)(C). Then "".join(signature(v) for v in V) is equal to S.
+
 Technical Remarks
 -----------------
 
