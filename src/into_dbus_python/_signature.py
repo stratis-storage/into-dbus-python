@@ -39,7 +39,7 @@ def signature(dbus_object):
     if isinstance(dbus_object, dbus.Array):
         sigs = frozenset(signature(x) for x in dbus_object)
         len_sigs = len(sigs)
-        if len_sigs > 1:
+        if len_sigs > 1: # pragma: no cover
             raise IntoDPValueError(
                dbus_object,
                "dbus_object",
@@ -62,14 +62,14 @@ def signature(dbus_object):
         len_key_sigs = len(key_sigs)
         len_value_sigs = len(value_sigs)
 
-        if len_key_sigs != len_value_sigs:
+        if len_key_sigs != len_value_sigs: # pragma: no cover
             raise IntoDPValueError(
                dbus_object,
                "dbus_object",
                "has bad signature"
             )
 
-        if len_key_sigs > 1:
+        if len_key_sigs > 1: # pragma: no cover
             raise IntoDPValueError(
                dbus_object,
                "dbus_object",
