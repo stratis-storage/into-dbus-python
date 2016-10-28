@@ -12,8 +12,18 @@ The dbus-python library is a library of python bindings for libdbus. It does
 not provide facilities to ensure that the types of the values that client code
 places on the D-Bus conform to the required signature. The client code may
 either be a D-Bus service, so that the values that it places on the D-Bus
-should conform to the signature that it specifies, or a client of the service,
-which must conform to the specifications of the service.
+should conform to the signature that it specifies, or, in some cases, a client
+of the service, which must conform to the specifications of the service.
+
+If a service implements the Introspectable interface on its objects,
+dbus-python will use the signature information to massage client messages
+into the correct dbus types. If the Introspectable interface is unavailable,
+dbus-python will guess the signature by recursively examining the values of
+the arguments, and will then proceed the same as before. If the signature
+contains a 'v', indicating a variant type, dbus-python must guess the type
+of the correspdoning value. dbus-python can be instructed not to make use of
+dbus introspection by setting the introspect parameter to false in the
+appropriate methods.
 
 This library provides facilities to ensure that values placed on the D-Bus
 conform to a given signature, by wrapping the values in the appropriate
