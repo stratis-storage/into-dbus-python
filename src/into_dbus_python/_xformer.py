@@ -175,7 +175,15 @@ class ToDbusXformer(Parser):
             :param bool variant: whether to make this object a variant
             :returns: a dbus Struct of transformed values and variant level
             :rtype: Struct * int
+            :raises IntoDPValueError:
             """
+            if len(a_list) != len(funcs):
+                raise IntoDPValueError(
+                   a_list,
+                   "a_list",
+                   "must have exactly %u items, has %u" % \
+                      (len(funcs), len(a_list))
+                )
             elements = [f(x) for (f, x) in zip(funcs, a_list)]
             level = 0 if elements == [] else max(x for (_, x) in elements)
             (obj_level, func_level) = \
