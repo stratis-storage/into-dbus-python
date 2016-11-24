@@ -31,6 +31,7 @@ from hs_dbus_signature import dbus_signatures
 
 from into_dbus_python import xformer
 from into_dbus_python import signature
+from into_dbus_python import IntoDPError
 from into_dbus_python import ToDbusXformer
 
 # Omits h, unix fd, because it is unclear what are valid fds for dbus
@@ -256,3 +257,25 @@ class ParseTestCase(unittest.TestCase):
         # test equality of signatures, rather than results, since nan != nan
         for sig, value in pairs:
             self.assertEqual(sig, signature(value))
+
+    @given(
+       dbus_signatures(min_complete_types=1, blacklist="h"). \
+          map(lambda x: "(%s)" % x)
+    )
+    @settings(max_examples=10)
+    def testStruct(self, sig):
+        """
+        Test exception throwing on a struct signature when number of items
+        is not equal to number of complete types in struct signature.
+        """
+        struct = \
+           [x.example() for x in \
+              STRATEGY_GENERATOR.parseString(sig, parseAll=True)][0]
+
+        xform = xformer(sig)
+
+        with self.assertRaises(IntoDPError):
+            xform([struct + (1, )])
+
+        with self.assertRaises(IntoDPError):
+            xform([struct[:-1]])
