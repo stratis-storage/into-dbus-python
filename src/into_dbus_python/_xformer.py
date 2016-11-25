@@ -321,12 +321,9 @@ def xformers(sig):
     Each function catches all TypeErrors it encounters and raises
     corresponding IntoDPValueError exceptions.
     """
-    return list(
-       map(
-          lambda x: (_wrapper(x[0]), x[1]),
-          _XFORMER.PARSER.parseString(sig, parseAll=True)
-       )
-    )
+    return \
+       [(_wrapper(f), l) for (f, l) in \
+       _XFORMER.PARSER.parseString(sig, parseAll=True)]
 
 
 def xformer(signature):
