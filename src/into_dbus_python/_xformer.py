@@ -134,6 +134,12 @@ class ToDbusXformer(Parser):
                 :returns: a dbus Array of transformed values and variant level
                 :rtype: Array * int
                 """
+                if isinstance(a_list, dict):
+                    raise IntoDPValueError(
+                       a_list,
+                       "a_list",
+                       "is a dict, must be an array"
+                    )
                 elements = [func(x) for x in a_list]
                 level = 0 if elements == [] else max(x for (_, x) in elements)
                 (obj_level, func_level) = \
