@@ -30,9 +30,9 @@ from hypothesis import strategies
 from hs_dbus_signature import dbus_signatures
 
 from into_dbus_python import xformer
-from into_dbus_python import xformers
 from into_dbus_python import signature
 from into_dbus_python import IntoDPError
+from into_dbus_python import ToDbusXformer
 
 # Omits h, unix fd, because it is unclear what are valid fds for dbus
 SIGNATURE_STRATEGY = dbus_signatures(max_codes=20, blacklist="h")
@@ -214,6 +214,8 @@ class ParseTestCase(unittest.TestCase):
     Test parsing various signatures.
     """
 
+    _PARSER = ToDbusXformer()
+
     @given(SIGNATURE_STRATEGY)
     @settings(max_examples=100)
     def testParsing(self, a_signature):
@@ -231,7 +233,7 @@ class ParseTestCase(unittest.TestCase):
            x.example() for x in \
               STRATEGY_GENERATOR.parseString(a_signature, parseAll=True)
         ]
-        results = xformers(a_signature)
+        results = self._PARSER.PARSER.parseString(a_signature, parseAll=True)
         funcs = [f for (f, _) in results]
         sigs = [s for (_, s) in results]
 
@@ -277,18 +279,3 @@ class ParseTestCase(unittest.TestCase):
 
         with self.assertRaises(IntoDPError):
             xform([struct[:-1]])
-
-    @given(dbus_signatures(blacklist="h{bs"))
-    @settings(max_examples=100)
-    def testExceptions(self, sig):
-        """
-        Test that an exception is raised for a dict if '{' is blacklisted.
-
-        Need to also blacklist 'b' and 's', since dbus.String and dbus.Boolean
-        constructors can both convert a dict.
-        """
-
-        xform = xformer(sig)
-
-        with self.assertRaises(IntoDPError):
-            xform([{True: True}])

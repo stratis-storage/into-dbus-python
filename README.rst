@@ -35,8 +35,9 @@ Usage and Implementation Hints
 
 Usage of the library is fairly straightforward::
 
-   >>> from into_dbus_python import xformers
-   >>> funcs = xformers("adq")
+   >>> from into_dbus_python import ToDbusXformer
+   >>> xformer = ToDbusXformer()
+   >>> funcs = xformer.PARSER.parseString("adq")
    >>> len(funcs)
    2
 
@@ -60,19 +61,6 @@ it is just 'd', the symbol for the type of the elements in the array,
 double. Note that the function also yields a tuple, the converted value and
 an int, which represents the variant level. Since there was no "v" in the
 signature, the variant level is 0.
-
-The generated functions will fail with an IntoDPError if passed invalid
-arguments. ::
-
-    >>> try:
-    ...     funcs[0][0](True)
-    ... except IntoDPError as err:
-    ...     print("bad arg")
-    ...
-    bad arg
-
-If any of the functions raises an exception that is not a subtype of
-IntoDPError this constitutes a bug and is not part of the public API.
 
 Conveniences
 ------------

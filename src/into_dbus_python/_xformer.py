@@ -16,39 +16,14 @@
 Transforming Python basic types to Python dbus types.
 """
 
-import functools
-
 import dbus
 
 from dbus_signature_pyparsing import Parser
 
 from ._errors import IntoDPValueError
 
-def _wrapper(func):
-    """
-    Wraps a generated function so that it catches all Type- and ValueErrors
-    and raises IntoDPValueErrors.
 
-    :param func: the transforming function
-    """
-
-    @functools.wraps(func)
-    def the_func(expr):
-        """
-        The actual function.
-
-        :param object expr: the expression to be xformed to dbus-python types
-        """
-        try:
-            return func(expr)
-        except (TypeError, ValueError) as err:
-            raise IntoDPValueError(expr, "expr", "could not be transformed") \
-               from err
-
-    return the_func
-
-
-class _ToDbusXformer(Parser):
+class ToDbusXformer(Parser):
     """
     Class which extends a Parser to yield a function that yields
     a function that transforms a value in base Python types to a correct value
@@ -133,7 +108,7 @@ class _ToDbusXformer(Parser):
                    0 if elements == [] \
                    else max(max(x, y) for ((_, x), (_, y)) in elements)
                 (obj_level, func_level) = \
-                   _ToDbusXformer._variant_levels(level, variant)
+                   ToDbusXformer._variant_levels(level, variant)
                 return (
                    dbus.types.Dictionary(
                       ((x, y) for ((x, _), (y, _)) in elements),
@@ -159,16 +134,10 @@ class _ToDbusXformer(Parser):
                 :returns: a dbus Array of transformed values and variant level
                 :rtype: Array * int
                 """
-                if isinstance(a_list, dict):
-                    raise IntoDPValueError(
-                       a_list,
-                       "a_list",
-                       "is a dict, must be an array"
-                    )
                 elements = [func(x) for x in a_list]
                 level = 0 if elements == [] else max(x for (_, x) in elements)
                 (obj_level, func_level) = \
-                   _ToDbusXformer._variant_levels(level, variant)
+                   ToDbusXformer._variant_levels(level, variant)
 
                 return (
                    dbus.types.Array(
@@ -208,12 +177,6 @@ class _ToDbusXformer(Parser):
             :rtype: Struct * int
             :raises IntoDPValueError:
             """
-            if isinstance(a_list, dict):
-                raise IntoDPValueError(
-                   a_list,
-                   "a_list",
-                   "must be a simple sequence, is a dict"
-                )
             if len(a_list) != len(funcs):
                 raise IntoDPValueError(
                    a_list,
@@ -224,7 +187,7 @@ class _ToDbusXformer(Parser):
             elements = [f(x) for (f, x) in zip(funcs, a_list)]
             level = 0 if elements == [] else max(x for (_, x) in elements)
             (obj_level, func_level) = \
-                _ToDbusXformer._variant_levels(level, variant)
+                ToDbusXformer._variant_levels(level, variant)
             return (
                dbus.types.Struct(
                   (x for (x, _) in elements),
@@ -252,82 +215,62 @@ class _ToDbusXformer(Parser):
             :returns: a tuple of a dbus object and the variant level
             :rtype: dbus object * int
             """
-            (obj_level, func_level) = _ToDbusXformer._variant_levels(0, variant)
+            (obj_level, func_level) = ToDbusXformer._variant_levels(0, variant)
             return (klass(v, variant_level=obj_level), func_level)
 
         return lambda: (the_func, symbol)
 
     def __init__(self):
-        super(_ToDbusXformer, self).__init__()
+        super(ToDbusXformer, self).__init__()
 
         self.BYTE.setParseAction(
-           _ToDbusXformer._handleBaseCase(dbus.types.Byte, 'y')
+           ToDbusXformer._handleBaseCase(dbus.types.Byte, 'y')
         )
         self.BOOLEAN.setParseAction(
-           _ToDbusXformer._handleBaseCase(dbus.types.Boolean, 'b')
+           ToDbusXformer._handleBaseCase(dbus.types.Boolean, 'b')
         )
         self.INT16.setParseAction(
-           _ToDbusXformer._handleBaseCase(dbus.types.Int16, 'n')
+           ToDbusXformer._handleBaseCase(dbus.types.Int16, 'n')
         )
         self.UINT16.setParseAction(
-           _ToDbusXformer._handleBaseCase(dbus.types.UInt16, 'q')
+           ToDbusXformer._handleBaseCase(dbus.types.UInt16, 'q')
         )
         self.INT32.setParseAction(
-           _ToDbusXformer._handleBaseCase(dbus.types.Int32, 'i')
+           ToDbusXformer._handleBaseCase(dbus.types.Int32, 'i')
         )
         self.UINT32.setParseAction(
-           _ToDbusXformer._handleBaseCase(dbus.types.UInt32, 'u')
+           ToDbusXformer._handleBaseCase(dbus.types.UInt32, 'u')
         )
         self.INT64.setParseAction(
-           _ToDbusXformer._handleBaseCase(dbus.types.Int64, 'x')
+           ToDbusXformer._handleBaseCase(dbus.types.Int64, 'x')
         )
         self.UINT64.setParseAction(
-           _ToDbusXformer._handleBaseCase(dbus.types.UInt64, 't')
+           ToDbusXformer._handleBaseCase(dbus.types.UInt64, 't')
         )
         self.DOUBLE.setParseAction(
-           _ToDbusXformer._handleBaseCase(dbus.types.Double, 'd')
+           ToDbusXformer._handleBaseCase(dbus.types.Double, 'd')
         )
         self.UNIX_FD.setParseAction(
-           _ToDbusXformer._handleBaseCase(dbus.types.UnixFd, 'h')
+           ToDbusXformer._handleBaseCase(dbus.types.UnixFd, 'h')
         )
         self.STRING.setParseAction(
-           _ToDbusXformer._handleBaseCase(dbus.types.String, 's')
+           ToDbusXformer._handleBaseCase(dbus.types.String, 's')
         )
         self.OBJECT_PATH.setParseAction(
-           _ToDbusXformer._handleBaseCase(dbus.types.ObjectPath, 'o')
+           ToDbusXformer._handleBaseCase(dbus.types.ObjectPath, 'o')
         )
         self.SIGNATURE.setParseAction(
-           _ToDbusXformer._handleBaseCase(dbus.types.Signature, 'g')
+           ToDbusXformer._handleBaseCase(dbus.types.Signature, 'g')
         )
 
         self.VARIANT.setParseAction(self._handleVariant)
 
-        self.ARRAY.setParseAction(_ToDbusXformer._handleArray)
+        self.ARRAY.setParseAction(ToDbusXformer._handleArray)
 
-        self.STRUCT.setParseAction(_ToDbusXformer._handleStruct)
-
-
-_XFORMER = _ToDbusXformer()
+        self.STRUCT.setParseAction(ToDbusXformer._handleStruct)
 
 
-def xformers(sig):
-    """
-    Get the list of xformer functions for the given signature.
-
-    :param str sig: a signature
-    :returns: a list of xformer functions for the given signature.
-    :rtype: list of tuple of a function * str
-
-    Each function catches all TypeErrors it encounters and raises
-    corresponding IntoDPValueError exceptions.
-    """
-    return list(
-       map(
-          lambda x: (_wrapper(x[0]), x[1]),
-          _XFORMER.PARSER.parseString(sig, parseAll=True)
-       )
-    )
-
+_XFORMER = ToDbusXformer()
 
 def xformer(signature):
     """
@@ -338,7 +281,8 @@ def xformer(signature):
     :rtype: (list of object) -> (list of object)
     """
 
-    funcs = [f for (f, _) in xformers(signature)]
+    funcs = \
+       [f for (f, _) in _XFORMER.PARSER.parseString(signature, parseAll=True)]
 
     def the_func(objects):
         """
@@ -350,13 +294,6 @@ def xformer(signature):
         :returns: transformed objects
         :rtype: list of object (in dbus types)
         """
-        if len(objects) != len(funcs):
-            raise IntoDPValueError(
-               objects,
-               "objects",
-               "must have exactly %u items, has %u" % \
-                  (len(funcs), len(objects))
-            )
         return [x for (x, _) in (f(a) for (f, a) in zip(funcs, objects))]
 
     return the_func
