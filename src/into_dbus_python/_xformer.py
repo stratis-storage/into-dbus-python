@@ -183,6 +183,12 @@ class ToDbusXformer(Parser):
             :rtype: Struct * int
             :raises IntoDPValueError:
             """
+            if isinstance(a_list, dict):
+                raise IntoDPValueError(
+                   a_list,
+                   "a_list",
+                   "must be a simple sequence, is a dict"
+                )
             if len(a_list) != len(funcs):
                 raise IntoDPValueError(
                    a_list,
