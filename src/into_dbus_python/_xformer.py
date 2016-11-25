@@ -294,6 +294,13 @@ def xformer(signature):
         :returns: transformed objects
         :rtype: list of object (in dbus types)
         """
+        if len(objects) != len(funcs):
+            raise IntoDPValueError(
+               objects,
+               "objects",
+               "must have exactly %u items, has %u" % \
+                  (len(funcs), len(objects))
+            )
         return [x for (x, _) in (f(a) for (f, a) in zip(funcs, objects))]
 
     return the_func
