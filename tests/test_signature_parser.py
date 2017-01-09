@@ -307,3 +307,10 @@ class ParseTestCase(unittest.TestCase):
            xformer('av')([([('v', ('b', False))])])[0],
            dbus.Array([dbus.Boolean(False, variant_level=2)], signature="v")
         )
+
+    def testBadArrayValue(self):
+        """
+        Verify that passing a dict for an array will raise an exception.
+        """
+        with self.assertRaises(IntoDPError):
+            xformer('a(qq)')([dict()])
