@@ -292,3 +292,10 @@ class ParseTestCase(unittest.TestCase):
 
         with self.assertRaises(IntoDPError):
             xform([{True: True}])
+
+    def testBadArrayValue(self):
+        """
+        Verify that passing a dict for an array will raise an exception.
+        """
+        with self.assertRaises(IntoDPError):
+            xformer('a(qq)')([dict()])
