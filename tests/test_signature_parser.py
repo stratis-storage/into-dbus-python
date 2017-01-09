@@ -207,6 +207,32 @@ def _descending(dbus_object):
     else:
         return dbus_object.variant_level
 
+def _max_variant_level(dbus_object):
+    """
+    Find out maximum variant level.
+
+    :param object dbus_object: a dbus object
+    :returns: the maximum variant level
+    :rtype: int
+    """
+    variant_level = dbus_object.variant_level
+    if variant_level != 0:
+        return variant_level
+
+    if isinstance(dbus_object, dbus.Dictionary):
+        key_levels = [_max_variant_level(x) for x in dbus_object.keys()]
+        value_levels = [_max_variant_level(x) for x in dbus_object.values()]
+        max_key_level = max(key_levels) if key_levels != [] else 0
+        max_value_level = max(value_levels) if value_levels != [] else 0
+        return max(max_key_level, max_value_level)
+
+    elif isinstance(dbus_object, (dbus.Array, dbus.Struct)):
+        levels = [_max_variant_level(x) for x in dbus_object]
+        return max(levels) if levels != [] else 0
+
+    else:
+        return 0
+
 
 class ParseTestCase(unittest.TestCase):
     """
@@ -314,3 +340,45 @@ class ParseTestCase(unittest.TestCase):
         """
         with self.assertRaises(IntoDPError):
             xformer('a(qq)')([dict()])
+
+    @given(STRATEGY_GENERATOR.parseString('v', parseAll=True)[0])
+    @settings(max_examples=100)
+    def testVariantStripping(self, value):
+        """
+        Test that stripping at one fewer than the max level leaves some 'v's
+        behind and that stripping at the max level does remove leading 'v'.
+        """
+        dbus_value = xformer('v')([value])[0]
+        max_variant_level = _max_variant_level(dbus_value)
+
+        strip_all = signature(
+           dbus_value,
+           strip_variant_levels=max_variant_level
+        )
+        # If, for example, there is an empty array and the type of its
+        # elements is 'v', there is no way to strip out the 'v'.
+        # Therefore, we can not assert that there is no 'v' in the resulting
+        # signature.  We can be certain that the signature does not start
+        # with 'v'.
+        self.assertFalse(strip_all.startswith('v'))
+
+        strip_one_less = signature(
+           dbus_value,
+           strip_variant_levels=max_variant_level - 1
+        )
+        self.assertTrue('v' in strip_one_less)
+
+    @given(
+       STRATEGY_GENERATOR.parseString('v', parseAll=True)[0],
+       strategies.integers(max_value=0)
+    )
+    @settings(max_examples=10)
+    def testVariantStripping0(self, value, level):
+        """
+        Test that variant stripping at level no greater than 0 has no effect.
+        """
+        dbus_value = xformer('v')([value])[0]
+        self.assertEqual(
+           signature(dbus_value, strip_variant_levels=level),
+           signature(dbus_value)
+        )
