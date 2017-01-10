@@ -79,9 +79,9 @@ class StrategyGenerator(Parser):
         """
 
         if len(toks) == 5 and toks[1] == '{' and toks[4] == '}':
-            return strategies.dictionaries(keys=toks[2], values=toks[3])
+            return strategies.dictionaries(keys=toks[2], values=toks[3], max_size=20)
         elif len(toks) == 2:
-            return strategies.lists(elements=toks[1])
+            return strategies.lists(elements=toks[1], max_size=20)
         else: # pragma: no cover
             raise ValueError("unexpected tokens")
 
