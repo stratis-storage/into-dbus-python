@@ -26,6 +26,7 @@ from dbus_signature_pyparsing import Parser
 from hypothesis import given
 from hypothesis import settings
 from hypothesis import strategies
+from hypothesis import HealthCheck
 
 from hs_dbus_signature import dbus_signatures
 
@@ -316,7 +317,7 @@ class ParseTestCase(unittest.TestCase):
         )
 
     @given(STRATEGY_GENERATOR.parseString('v', parseAll=True)[0])
-    @settings(max_examples=50)
+    @settings(max_examples=50, suppress_health_check=[HealthCheck.too_slow])
     def testUnpacking(self, value):
         """
         Test that signature unpacking works.
