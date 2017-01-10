@@ -72,7 +72,8 @@ class _ToDbusXformer(Parser):
         :returns: a level for the object and one for the function
         :rtype: int * int
         """
-        return (level + 1, level + 1) if variant else (0, level)
+        return (level + variant, level + variant) \
+           if variant != 0 else (0, level)
 
     def _handleVariant(self):
         """
@@ -82,13 +83,13 @@ class _ToDbusXformer(Parser):
         :rtype: ((str * object) or list)-> object
         """
 
-        def the_func(a_tuple, variant=False):
+        def the_func(a_tuple, variant=0):
             """
             Function for generating a variant value from a tuple.
 
             :param a_tuple: the parts of the variant
             :type a_tuple: (str * object) or list
-            :param bool variant: whether the object is a variant
+            :param int variant: object's variant index
             :returns: a value of the correct type with correct variant level
             :rtype: object * int
             """
@@ -96,7 +97,7 @@ class _ToDbusXformer(Parser):
             (signature, an_obj) = a_tuple
             (func, sig) = self.COMPLETE.parseString(signature)[0]
             assert sig == signature
-            (xformed, _) = func(an_obj, variant=True)
+            (xformed, _) = func(an_obj, variant=variant + 1)
             return (xformed, xformed.variant_level)
 
         return (the_func, 'v')
@@ -116,13 +117,13 @@ class _ToDbusXformer(Parser):
             signature = ''.join(s for (_, s) in subtree)
             [key_func, value_func] = [f for (f, _) in subtree]
 
-            def the_func(a_dict, variant=False):
+            def the_func(a_dict, variant=0):
                 """
                 Function for generating a Dictionary from a dict.
 
                 :param a_dict: the dictionary to transform
                 :type a_dict: dict of (`a * `b)
-                :param bool variant: whether to make the object a variant
+                :param int variant: variant level
 
                 :returns: a dbus dictionary of transformed values and level
                 :rtype: Dictionary * int
@@ -130,7 +131,7 @@ class _ToDbusXformer(Parser):
                 elements = \
                    [(key_func(x), value_func(y)) for (x, y) in a_dict.items()]
                 level = \
-                   0 if elements == [] \
+                   (1 if 'v' in signature else 0) if elements == [] \
                    else max(max(x, y) for ((_, x), (_, y)) in elements)
                 (obj_level, func_level) = \
                    _ToDbusXformer._variant_levels(level, variant)
@@ -146,16 +147,15 @@ class _ToDbusXformer(Parser):
             return (the_func, 'a{' + signature + '}')
 
         elif len(toks) == 2:
-
             (func, sig) = toks[1]
 
-            def the_func(a_list, variant=False):
+            def the_func(a_list, variant=0):
                 """
                 Function for generating an Array from a list.
 
                 :param a_list: the list to transform
                 :type a_list: list of `a
-                :param bool variant: whether the object is a variant
+                :param int variant: variant level of the value
                 :returns: a dbus Array of transformed values and variant level
                 :rtype: Array * int
                 """
@@ -166,7 +166,8 @@ class _ToDbusXformer(Parser):
                        "is a dict, must be an array"
                     )
                 elements = [func(x) for x in a_list]
-                level = 0 if elements == [] else max(x for (_, x) in elements)
+                level = (1 if 'v' in sig else 0) if elements == [] \
+                   else max(x for (_, x) in elements)
                 (obj_level, func_level) = \
                    _ToDbusXformer._variant_levels(level, variant)
 
@@ -197,13 +198,13 @@ class _ToDbusXformer(Parser):
         signature = ''.join(s for (_, s) in subtrees)
         funcs = [f for (f, _) in subtrees]
 
-        def the_func(a_list, variant=False):
+        def the_func(a_list, variant=0):
             """
             Function for generating a Struct from a list.
 
             :param a_list: the list to transform
             :type a_list: list or tuple
-            :param bool variant: whether to make this object a variant
+            :param int variant: variant index
             :returns: a dbus Struct of transformed values and variant level
             :rtype: Struct * int
             :raises IntoDPValueError:
@@ -244,11 +245,11 @@ class _ToDbusXformer(Parser):
         :param type klass: the class constructor
         :param str symbol: the type code
         """
-        def the_func(v, variant=False):
+        def the_func(v, variant=0):
             """
             Base case.
 
-            :param bool variant: whether to make this object a variant
+            :param int variant: variant level for this object
             :returns: a tuple of a dbus object and the variant level
             :rtype: dbus object * int
             """
