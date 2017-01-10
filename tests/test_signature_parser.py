@@ -160,7 +160,7 @@ STRATEGY_GENERATOR = StrategyGenerator().PARSER
 
 def _descending(dbus_object):
     """
-    Verify levels of variant values always descend by one.
+    Verify levels of variant values always descend.
 
     :param object dbus_object: a dbus object
     :returns: None if there was a failure of the property, otherwise the level
@@ -185,7 +185,7 @@ def _descending(dbus_object):
         if variant_level == 0:
             return max_level
 
-        if variant_level != max_level + 1:
+        if variant_level < max_level + 1:
             return None
         else:
             return variant_level
@@ -200,13 +200,12 @@ def _descending(dbus_object):
         if variant_level == 0:
             return max_level
 
-        if variant_level != max_level + 1:
+        if variant_level < max_level + 1:
             return None
         else:
             return variant_level
     else:
-        variant_level = dbus_object.variant_level
-        return variant_level if variant_level in (0, 1) else None
+        return dbus_object.variant_level
 
 
 class ParseTestCase(unittest.TestCase):
@@ -224,8 +223,7 @@ class ParseTestCase(unittest.TestCase):
         returned by the parser and to the signature of the generated value.
 
         Verify that the variant levels always descend within the constructed
-        value, always by single steps and that leaves of the value always
-        have variant level of 0 or 1.
+        value.
         """
         base_type_objects = [
            x.example() for x in \
@@ -292,3 +290,20 @@ class ParseTestCase(unittest.TestCase):
 
         with self.assertRaises(IntoDPError):
             xform([{True: True}])
+
+    def testVariantDepth(self):
+        """
+        Verify that a nested variant has appropriate variant depth.
+        """
+        self.assertEqual(
+           xformer('v')([('v', ('v', ('b', False)))])[0].variant_level,
+           3
+        )
+        self.assertEqual(
+           xformer('v')([('v', ('ab', [False]))])[0],
+           dbus.Array([dbus.Boolean(False)], signature='b', variant_level=2)
+        )
+        self.assertEqual(
+           xformer('av')([([('v', ('b', False))])])[0],
+           dbus.Array([dbus.Boolean(False, variant_level=2)], signature="v")
+        )
