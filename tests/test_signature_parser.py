@@ -314,3 +314,16 @@ class ParseTestCase(unittest.TestCase):
            xformer('av')([([('v', ('b', False))])])[0],
            dbus.Array([dbus.Boolean(False, variant_level=2)], signature="v")
         )
+
+    @given(STRATEGY_GENERATOR.parseString('v', parseAll=True)[0])
+    @settings(max_examples=50)
+    def testUnpacking(self, value):
+        """
+        Test that signature unpacking works.
+        """
+        dbus_value = xformer('v')([value])[0]
+        unpacked = signature(dbus_value, unpack=True)
+        packed = signature(dbus_value)
+
+        self.assertEqual(packed, 'v')
+        self.assertFalse(unpacked.startswith('v'))

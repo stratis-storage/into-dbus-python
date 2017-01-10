@@ -21,19 +21,20 @@ import dbus
 from ._errors import IntoDPValueError
 
 
-def signature(dbus_object):
+def signature(dbus_object, unpack=False):
     """
     Get the signature of a dbus object.
 
     :param dbus_object: the object
     :type dbus_object: a dbus object
+    :param bool unpack: if True, unpack from enclosing variant type
     :returns: the corresponding signature
     :rtype: str
     """
     # pylint: disable=too-many-return-statements
     # pylint: disable=too-many-branches
 
-    if dbus_object.variant_level != 0:
+    if dbus_object.variant_level != 0 and not unpack:
         return 'v'
 
     if isinstance(dbus_object, dbus.Array):
