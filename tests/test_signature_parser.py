@@ -278,7 +278,7 @@ class ParseTestCase(unittest.TestCase):
         with self.assertRaises(IntoDPError):
             xform([struct[:-1]])
 
-    @given(dbus_signatures(blacklist="h{bs"))
+    @given(dbus_signatures(blacklist="hbs", exclude_dicts=True))
     @settings(max_examples=100)
     def testExceptions(self, sig):
         """
