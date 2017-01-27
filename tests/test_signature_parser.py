@@ -26,6 +26,7 @@ from dbus_signature_pyparsing import Parser
 from hypothesis import given
 from hypothesis import settings
 from hypothesis import strategies
+from hypothesis import HealthCheck
 
 from hs_dbus_signature import dbus_signatures
 
@@ -79,9 +80,9 @@ class StrategyGenerator(Parser):
         """
 
         if len(toks) == 5 and toks[1] == '{' and toks[4] == '}':
-            return strategies.dictionaries(keys=toks[2], values=toks[3])
+            return strategies.dictionaries(keys=toks[2], values=toks[3], max_size=20)
         elif len(toks) == 2:
-            return strategies.lists(elements=toks[1])
+            return strategies.lists(elements=toks[1], max_size=20)
         else: # pragma: no cover
             raise ValueError("unexpected tokens")
 
@@ -160,7 +161,7 @@ STRATEGY_GENERATOR = StrategyGenerator().PARSER
 
 def _descending(dbus_object):
     """
-    Verify levels of variant values always descend by one.
+    Verify levels of variant values always descend.
 
     :param object dbus_object: a dbus object
     :returns: None if there was a failure of the property, otherwise the level
@@ -185,7 +186,7 @@ def _descending(dbus_object):
         if variant_level == 0:
             return max_level
 
-        if variant_level != max_level + 1:
+        if variant_level < max_level + 1:
             return None
         else:
             return variant_level
@@ -200,13 +201,12 @@ def _descending(dbus_object):
         if variant_level == 0:
             return max_level
 
-        if variant_level != max_level + 1:
+        if variant_level < max_level + 1:
             return None
         else:
             return variant_level
     else:
-        variant_level = dbus_object.variant_level
-        return variant_level if variant_level in (0, 1) else None
+        return dbus_object.variant_level
 
 
 class ParseTestCase(unittest.TestCase):
@@ -224,8 +224,7 @@ class ParseTestCase(unittest.TestCase):
         returned by the parser and to the signature of the generated value.
 
         Verify that the variant levels always descend within the constructed
-        value, always by single steps and that leaves of the value always
-        have variant level of 0 or 1.
+        value.
         """
         base_type_objects = [
            x.example() for x in \
@@ -278,7 +277,7 @@ class ParseTestCase(unittest.TestCase):
         with self.assertRaises(IntoDPError):
             xform([struct[:-1]])
 
-    @given(dbus_signatures(blacklist="h{bs"))
+    @given(dbus_signatures(blacklist="hbs", exclude_dicts=True))
     @settings(max_examples=100)
     def testExceptions(self, sig):
         """
@@ -292,3 +291,40 @@ class ParseTestCase(unittest.TestCase):
 
         with self.assertRaises(IntoDPError):
             xform([{True: True}])
+
+    def testBadArrayValue(self):
+        """
+        Verify that passing a dict for an array will raise an exception.
+        """
+        with self.assertRaises(IntoDPError):
+            xformer('a(qq)')([dict()])
+
+    def testVariantDepth(self):
+        """
+        Verify that a nested variant has appropriate variant depth.
+        """
+        self.assertEqual(
+           xformer('v')([('v', ('v', ('b', False)))])[0].variant_level,
+           3
+        )
+        self.assertEqual(
+           xformer('v')([('v', ('ab', [False]))])[0],
+           dbus.Array([dbus.Boolean(False)], signature='b', variant_level=2)
+        )
+        self.assertEqual(
+           xformer('av')([([('v', ('b', False))])])[0],
+           dbus.Array([dbus.Boolean(False, variant_level=2)], signature="v")
+        )
+
+    @given(STRATEGY_GENERATOR.parseString('v', parseAll=True)[0])
+    @settings(max_examples=50, suppress_health_check=[HealthCheck.too_slow])
+    def testUnpacking(self, value):
+        """
+        Test that signature unpacking works.
+        """
+        dbus_value = xformer('v')([value])[0]
+        unpacked = signature(dbus_value, unpack=True)
+        packed = signature(dbus_value)
+
+        self.assertEqual(packed, 'v')
+        self.assertFalse(unpacked.startswith('v'))
