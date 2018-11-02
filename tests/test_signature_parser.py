@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """
 Test signature parsing.
 """
@@ -80,10 +79,11 @@ class StrategyGenerator(Parser):
         """
 
         if len(toks) == 5 and toks[1] == '{' and toks[4] == '}':
-            return strategies.dictionaries(keys=toks[2], values=toks[3], max_size=20)
+            return strategies.dictionaries(
+                keys=toks[2], values=toks[3], max_size=20)
         elif len(toks) == 2:
             return strategies.lists(elements=toks[1], max_size=20)
-        else: # pragma: no cover
+        else:  # pragma: no cover
             raise ValueError("unexpected tokens")
 
     def __init__(self):
@@ -91,15 +91,12 @@ class StrategyGenerator(Parser):
 
         # pylint: disable=unnecessary-lambda
         self.BYTE.setParseAction(
-           lambda: strategies.integers(min_value=0, max_value=255)
-        )
+            lambda: strategies.integers(min_value=0, max_value=255))
         self.BOOLEAN.setParseAction(lambda: strategies.booleans())
         self.INT16.setParseAction(
-           lambda: strategies.integers(min_value=-0x8000, max_value=0x7fff)
-        )
+            lambda: strategies.integers(min_value=-0x8000, max_value=0x7fff))
         self.UINT16.setParseAction(
-           lambda: strategies.integers(min_value=0, max_value=0xffff)
-        )
+            lambda: strategies.integers(min_value=0, max_value=0xffff))
         self.INT32.setParseAction(
            lambda: strategies.integers(
               min_value=-0x80000000,
@@ -107,8 +104,7 @@ class StrategyGenerator(Parser):
            )
         )
         self.UINT32.setParseAction(
-           lambda: strategies.integers(min_value=0, max_value=0xffffffff)
-        )
+            lambda: strategies.integers(min_value=0, max_value=0xffffffff))
         self.INT64.setParseAction(
            lambda: strategies.integers(
               min_value=-0x8000000000000000,
@@ -135,11 +131,10 @@ class StrategyGenerator(Parser):
             :rtype: strategy
             """
             signature_strategy = dbus_signatures(
-               max_codes=5,
-               min_complete_types=1,
-               max_complete_types=1,
-               blacklist="h"
-            )
+                max_codes=5,
+                min_complete_types=1,
+                max_complete_types=1,
+                blacklist="h")
             return signature_strategy.flatmap(
                lambda x: strategies.tuples(
                   strategies.just(x),
@@ -152,9 +147,9 @@ class StrategyGenerator(Parser):
         self.ARRAY.setParseAction(StrategyGenerator._handleArray)
 
         self.STRUCT.setParseAction(
-           # pylint: disable=used-before-assignment
-           lambda toks: strategies.tuples(*toks[1:-1])
-        )
+            # pylint: disable=used-before-assignment
+            lambda toks: strategies.tuples(*toks[1:-1]))
+
 
 STRATEGY_GENERATOR = StrategyGenerator().PARSER
 
@@ -304,17 +299,13 @@ class ParseTestCase(unittest.TestCase):
         Verify that a nested variant has appropriate variant depth.
         """
         self.assertEqual(
-           xformer('v')([('v', ('v', ('b', False)))])[0].variant_level,
-           3
-        )
+            xformer('v')([('v', ('v', ('b', False)))])[0].variant_level, 3)
         self.assertEqual(
-           xformer('v')([('v', ('ab', [False]))])[0],
-           dbus.Array([dbus.Boolean(False)], signature='b', variant_level=2)
-        )
+            xformer('v')([('v', ('ab', [False]))])[0],
+            dbus.Array([dbus.Boolean(False)], signature='b', variant_level=2))
         self.assertEqual(
-           xformer('av')([([('v', ('b', False))])])[0],
-           dbus.Array([dbus.Boolean(False, variant_level=2)], signature="v")
-        )
+            xformer('av')([([('v', ('b', False))])])[0],
+            dbus.Array([dbus.Boolean(False, variant_level=2)], signature="v"))
 
     @given(STRATEGY_GENERATOR.parseString('v', parseAll=True)[0])
     @settings(max_examples=50, suppress_health_check=[HealthCheck.too_slow])

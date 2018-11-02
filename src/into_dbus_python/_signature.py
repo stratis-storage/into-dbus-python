@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """
 Definition of signature method.
 """
@@ -40,12 +39,9 @@ def signature(dbus_object, unpack=False):
     if isinstance(dbus_object, dbus.Array):
         sigs = frozenset(signature(x) for x in dbus_object)
         len_sigs = len(sigs)
-        if len_sigs > 1: # pragma: no cover
-            raise IntoDPValueError(
-               dbus_object,
-               "dbus_object",
-               "has bad signature"
-            )
+        if len_sigs > 1:  # pragma: no cover
+            raise IntoDPValueError(dbus_object, "dbus_object",
+                                   "has bad signature")
 
         if len_sigs == 0:
             return 'a' + dbus_object.signature
@@ -63,24 +59,19 @@ def signature(dbus_object, unpack=False):
         len_key_sigs = len(key_sigs)
         len_value_sigs = len(value_sigs)
 
-        if len_key_sigs != len_value_sigs: # pragma: no cover
-            raise IntoDPValueError(
-               dbus_object,
-               "dbus_object",
-               "has bad signature"
-            )
+        if len_key_sigs != len_value_sigs:  # pragma: no cover
+            raise IntoDPValueError(dbus_object, "dbus_object",
+                                   "has bad signature")
 
-        if len_key_sigs > 1: # pragma: no cover
-            raise IntoDPValueError(
-               dbus_object,
-               "dbus_object",
-               "has bad signature"
-            )
+        if len_key_sigs > 1:  # pragma: no cover
+            raise IntoDPValueError(dbus_object, "dbus_object",
+                                   "has bad signature")
 
         if len_key_sigs == 0:
             return 'a{' + dbus_object.signature + '}'
 
-        return 'a{' + [x for x in key_sigs][0] + [x for x in value_sigs][0] + '}'
+        return 'a{' + [x for x in key_sigs][0] + [x
+                                                  for x in value_sigs][0] + '}'
 
     if isinstance(dbus_object, dbus.Boolean):
         return 'b'
@@ -118,5 +109,5 @@ def signature(dbus_object, unpack=False):
     elif isinstance(dbus_object, dbus.UInt64):
         return 't'
 
-    elif isinstance(dbus_object, dbus.types.UnixFd): # pragma: no cover
+    elif isinstance(dbus_object, dbus.types.UnixFd):  # pragma: no cover
         return 'h'
