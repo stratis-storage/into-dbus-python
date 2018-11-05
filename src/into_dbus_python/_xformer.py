@@ -117,7 +117,7 @@ class _ToDbusXformer(Parser):
             signature = ''.join(s for (_, s) in subtree)
             [key_func, value_func] = [f for (f, _) in subtree]
 
-            def the_func(a_dict, variant=0):
+            def the_dict_func(a_dict, variant=0):
                 """
                 Function for generating a Dictionary from a dict.
 
@@ -139,12 +139,12 @@ class _ToDbusXformer(Parser):
                     signature=signature,
                     variant_level=obj_level), func_level)
 
-            return (the_func, 'a{' + signature + '}')
+            return (the_dict_func, 'a{' + signature + '}')
 
-        elif len(toks) == 2:
+        if len(toks) == 2:
             (func, sig) = toks[1]
 
-            def the_func(a_list, variant=0):
+            def the_array_func(a_list, variant=0):
                 """
                 Function for generating an Array from a list.
 
@@ -167,10 +167,10 @@ class _ToDbusXformer(Parser):
                     signature=sig,
                     variant_level=obj_level), func_level)
 
-            return (the_func, 'a' + sig)
+            return (the_array_func, 'a' + sig)
 
-        else:  # pragma: no cover
-            raise IntoDPValueError(toks, "toks", "unexpected tokens")
+        raise IntoDPValueError(toks, "toks",
+                               "unexpected tokens")  # pragma: no cover
 
     @staticmethod
     def _handleStruct(toks):
