@@ -81,10 +81,9 @@ class StrategyGenerator(Parser):
         if len(toks) == 5 and toks[1] == '{' and toks[4] == '}':
             return strategies.dictionaries(
                 keys=toks[2], values=toks[3], max_size=20)
-        elif len(toks) == 2:
+        if len(toks) == 2:
             return strategies.lists(elements=toks[1], max_size=20)
-        else:  # pragma: no cover
-            raise ValueError("unexpected tokens")
+        raise ValueError("unexpected tokens")  # pragma: no cover
 
     def __init__(self):
         super(StrategyGenerator, self).__init__()
@@ -181,11 +180,9 @@ def _descending(dbus_object):
         if variant_level == 0:
             return max_level
 
-        if variant_level < max_level + 1:
-            return None
-        else:
-            return variant_level
-    elif isinstance(dbus_object, (dbus.Array, dbus.Struct)):
+        return None if variant_level < max_level + 1 else variant_level
+
+    if isinstance(dbus_object, (dbus.Array, dbus.Struct)):
         levels = [_descending(x) for x in dbus_object]
         if any(l is None for l in levels):
             return None
@@ -196,12 +193,9 @@ def _descending(dbus_object):
         if variant_level == 0:
             return max_level
 
-        if variant_level < max_level + 1:
-            return None
-        else:
-            return variant_level
-    else:
-        return dbus_object.variant_level
+        return None if variant_level < max_level + 1 else variant_level
+
+    return dbus_object.variant_level
 
 
 class ParseTestCase(unittest.TestCase):
