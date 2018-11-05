@@ -76,38 +76,41 @@ def signature(dbus_object, unpack=False):
     if isinstance(dbus_object, dbus.Boolean):
         return 'b'
 
-    elif isinstance(dbus_object, dbus.Byte):
+    if isinstance(dbus_object, dbus.Byte):
         return 'y'
 
-    elif isinstance(dbus_object, dbus.Double):
+    if isinstance(dbus_object, dbus.Double):
         return 'd'
 
-    elif isinstance(dbus_object, dbus.Int16):
+    if isinstance(dbus_object, dbus.Int16):
         return 'n'
 
-    elif isinstance(dbus_object, dbus.Int32):
+    if isinstance(dbus_object, dbus.Int32):
         return 'i'
 
-    elif isinstance(dbus_object, dbus.Int64):
+    if isinstance(dbus_object, dbus.Int64):
         return 'x'
 
-    elif isinstance(dbus_object, dbus.ObjectPath):
+    if isinstance(dbus_object, dbus.ObjectPath):
         return 'o'
 
-    elif isinstance(dbus_object, dbus.Signature):
+    if isinstance(dbus_object, dbus.Signature):
         return 'g'
 
-    elif isinstance(dbus_object, dbus.String):
+    if isinstance(dbus_object, dbus.String):
         return 's'
 
-    elif isinstance(dbus_object, dbus.UInt16):
+    if isinstance(dbus_object, dbus.UInt16):
         return 'q'
 
-    elif isinstance(dbus_object, dbus.UInt32):
+    if isinstance(dbus_object, dbus.UInt32):
         return 'u'
 
-    elif isinstance(dbus_object, dbus.UInt64):
+    if isinstance(dbus_object, dbus.UInt64):
         return 't'
 
-    elif isinstance(dbus_object, dbus.types.UnixFd):  # pragma: no cover
+    if isinstance(dbus_object, dbus.types.UnixFd):  # pragma: no cover
         return 'h'
+
+    raise IntoDPValueError(dbus_object, "dbus_object",
+                           "has no signature")  # pragma: no cover
