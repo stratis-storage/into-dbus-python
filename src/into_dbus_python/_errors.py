@@ -11,10 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """
 Error heirarchy for xformer generator.
 """
+
 
 class IntoDPError(Exception):
     """
@@ -30,7 +30,7 @@ class IntoDPValueError(IntoDPError):
     """
     _FMT_STR = "value '%s' for parameter %s is unacceptable"
 
-    def __init__(self, value, param, msg=None): # pragma: no cover
+    def __init__(self, value, param, msg=None):  # pragma: no cover
         """ Initializer.
 
             :param object value: the value
@@ -42,9 +42,8 @@ class IntoDPValueError(IntoDPError):
         self._param = param
         self._msg = msg
 
-    def __str__(self): # pragma: no cover
+    def __str__(self):  # pragma: no cover
         if self._msg:
             fmt_str = self._FMT_STR + ": %s"
             return fmt_str % (self._value, self._param, self._msg)
-        else:
-            return self._FMT_STR % (self._value, self._param)
+        return self._FMT_STR % (self._value, self._param)
