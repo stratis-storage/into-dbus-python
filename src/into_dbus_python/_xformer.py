@@ -201,9 +201,9 @@ class _ToDbusXformer(Parser):
                                        "must be a simple sequence, is a dict")
             if len(a_list) != len(funcs):
                 raise IntoDPValueError(
-                   a_list,
-                   "a_list",
-                   "must have exactly %u items, has %u" % \
+                    a_list,
+                    "a_list",
+                    "must have exactly %u items, has %u" % \
                       (len(funcs), len(a_list))
                 )
             elements = [f(x) for (f, x) in zip(funcs, a_list)]
@@ -319,9 +319,9 @@ def xformer(signature):
         """
         if len(objects) != len(funcs):
             raise IntoDPValueError(
-               objects,
-               "objects",
-               "must have exactly %u items, has %u" % \
+                objects,
+                "objects",
+                "must have exactly %u items, has %u" % \
                   (len(funcs), len(objects))
             )
         return [x for (x, _) in (f(a) for (f, a) in zip(funcs, objects))]
