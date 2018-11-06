@@ -61,7 +61,7 @@ class StrategyGenerator(Parser):
     # pylint: disable=too-few-public-methods
 
     @staticmethod
-    def _handleArray(toks):
+    def _handle_array(toks):
         """
         Generate the correct strategy for an array signature.
 
@@ -104,7 +104,7 @@ class StrategyGenerator(Parser):
         self.OBJECT_PATH.setParseAction(lambda: OBJECT_PATH_STRATEGY)
         self.SIGNATURE.setParseAction(lambda: SIGNATURE_STRATEGY)
 
-        def _handleVariant():
+        def _handle_variant():
             """
             Generate the correct strategy for a variant signature.
 
@@ -119,9 +119,9 @@ class StrategyGenerator(Parser):
             return signature_strategy.flatmap(
                 lambda x: strategies.tuples(strategies.just(x), self.COMPLETE.parseString(x)[0]))
 
-        self.VARIANT.setParseAction(_handleVariant)
+        self.VARIANT.setParseAction(_handle_variant)
 
-        self.ARRAY.setParseAction(StrategyGenerator._handleArray)
+        self.ARRAY.setParseAction(StrategyGenerator._handle_array)
 
         self.STRUCT.setParseAction(
             # pylint: disable=used-before-assignment
@@ -183,7 +183,7 @@ class ParseTestCase(unittest.TestCase):
 
     @given(SIGNATURE_STRATEGY)
     @settings(max_examples=100)
-    def testParsing(self, a_signature):
+    def test_parsing(self, a_signature):
         """
         Test that parsing is always succesful.
 
@@ -224,7 +224,7 @@ class ParseTestCase(unittest.TestCase):
         dbus_signatures(min_complete_types=1,
                         blacklist="h").map(lambda x: "(%s)" % x))
     @settings(max_examples=10)
-    def testStruct(self, sig):
+    def test_struct(self, sig):
         """
         Test exception throwing on a struct signature when number of items
         is not equal to number of complete types in struct signature.
@@ -243,7 +243,7 @@ class ParseTestCase(unittest.TestCase):
 
     @given(dbus_signatures(blacklist="hbs", exclude_dicts=True))
     @settings(max_examples=100)
-    def testExceptions(self, sig):
+    def test_exceptions(self, sig):
         """
         Test that an exception is raised for a dict if '{' is blacklisted.
 
@@ -256,14 +256,14 @@ class ParseTestCase(unittest.TestCase):
         with self.assertRaises(IntoDPError):
             xform([{True: True}])
 
-    def testBadArrayValue(self):
+    def test_bad_array_value(self):
         """
         Verify that passing a dict for an array will raise an exception.
         """
         with self.assertRaises(IntoDPError):
             xformer('a(qq)')([dict()])
 
-    def testVariantDepth(self):
+    def test_variant_depth(self):
         """
         Verify that a nested variant has appropriate variant depth.
         """
@@ -278,7 +278,7 @@ class ParseTestCase(unittest.TestCase):
 
     @given(STRATEGY_GENERATOR.parseString('v', parseAll=True)[0])
     @settings(max_examples=50, suppress_health_check=[HealthCheck.too_slow])
-    def testUnpacking(self, value):
+    def test_unpacking(self, value):
         """
         Test that signature unpacking works.
         """

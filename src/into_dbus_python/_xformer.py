@@ -75,7 +75,7 @@ class _ToDbusXformer(Parser):
         return (level + variant, level + variant) \
            if variant != 0 else (variant, level)
 
-    def _handleVariant(self):
+    def _handle_variant(self):
         """
         Generate the correct function for a variant signature.
 
@@ -103,7 +103,7 @@ class _ToDbusXformer(Parser):
         return (the_func, 'v')
 
     @staticmethod
-    def _handleArray(toks):
+    def _handle_array(toks):
         """
         Generate the correct function for an array signature.
 
@@ -173,7 +173,7 @@ class _ToDbusXformer(Parser):
                                "unexpected tokens")  # pragma: no cover
 
     @staticmethod
-    def _handleStruct(toks):
+    def _handle_struct(toks):
         """
         Generate the correct function for a struct signature.
 
@@ -218,7 +218,7 @@ class _ToDbusXformer(Parser):
         return (the_func, '(' + signature + ')')
 
     @staticmethod
-    def _handleBaseCase(klass, symbol):
+    def _handle_base_case(klass, symbol):
         """
         Handle a base case.
 
@@ -226,7 +226,7 @@ class _ToDbusXformer(Parser):
         :param str symbol: the type code
         """
 
-        def the_func(v, variant=0):
+        def the_func(value, variant=0):
             """
             Base case.
 
@@ -236,7 +236,7 @@ class _ToDbusXformer(Parser):
             """
             (obj_level, func_level) = _ToDbusXformer._variant_levels(
                 0, variant)
-            return (klass(v, variant_level=obj_level), func_level)
+            return (klass(value, variant_level=obj_level), func_level)
 
         return lambda: (the_func, symbol)
 
@@ -244,37 +244,37 @@ class _ToDbusXformer(Parser):
         super(_ToDbusXformer, self).__init__()
 
         self.BYTE.setParseAction(
-            _ToDbusXformer._handleBaseCase(dbus.types.Byte, 'y'))
+            _ToDbusXformer._handle_base_case(dbus.types.Byte, 'y'))
         self.BOOLEAN.setParseAction(
-            _ToDbusXformer._handleBaseCase(dbus.types.Boolean, 'b'))
+            _ToDbusXformer._handle_base_case(dbus.types.Boolean, 'b'))
         self.INT16.setParseAction(
-            _ToDbusXformer._handleBaseCase(dbus.types.Int16, 'n'))
+            _ToDbusXformer._handle_base_case(dbus.types.Int16, 'n'))
         self.UINT16.setParseAction(
-            _ToDbusXformer._handleBaseCase(dbus.types.UInt16, 'q'))
+            _ToDbusXformer._handle_base_case(dbus.types.UInt16, 'q'))
         self.INT32.setParseAction(
-            _ToDbusXformer._handleBaseCase(dbus.types.Int32, 'i'))
+            _ToDbusXformer._handle_base_case(dbus.types.Int32, 'i'))
         self.UINT32.setParseAction(
-            _ToDbusXformer._handleBaseCase(dbus.types.UInt32, 'u'))
+            _ToDbusXformer._handle_base_case(dbus.types.UInt32, 'u'))
         self.INT64.setParseAction(
-            _ToDbusXformer._handleBaseCase(dbus.types.Int64, 'x'))
+            _ToDbusXformer._handle_base_case(dbus.types.Int64, 'x'))
         self.UINT64.setParseAction(
-            _ToDbusXformer._handleBaseCase(dbus.types.UInt64, 't'))
+            _ToDbusXformer._handle_base_case(dbus.types.UInt64, 't'))
         self.DOUBLE.setParseAction(
-            _ToDbusXformer._handleBaseCase(dbus.types.Double, 'd'))
+            _ToDbusXformer._handle_base_case(dbus.types.Double, 'd'))
         self.UNIX_FD.setParseAction(
-            _ToDbusXformer._handleBaseCase(dbus.types.UnixFd, 'h'))
+            _ToDbusXformer._handle_base_case(dbus.types.UnixFd, 'h'))
         self.STRING.setParseAction(
-            _ToDbusXformer._handleBaseCase(dbus.types.String, 's'))
+            _ToDbusXformer._handle_base_case(dbus.types.String, 's'))
         self.OBJECT_PATH.setParseAction(
-            _ToDbusXformer._handleBaseCase(dbus.types.ObjectPath, 'o'))
+            _ToDbusXformer._handle_base_case(dbus.types.ObjectPath, 'o'))
         self.SIGNATURE.setParseAction(
-            _ToDbusXformer._handleBaseCase(dbus.types.Signature, 'g'))
+            _ToDbusXformer._handle_base_case(dbus.types.Signature, 'g'))
 
-        self.VARIANT.setParseAction(self._handleVariant)
+        self.VARIANT.setParseAction(self._handle_variant)
 
-        self.ARRAY.setParseAction(_ToDbusXformer._handleArray)
+        self.ARRAY.setParseAction(_ToDbusXformer._handle_array)
 
-        self.STRUCT.setParseAction(_ToDbusXformer._handleStruct)
+        self.STRUCT.setParseAction(_ToDbusXformer._handle_struct)
 
 
 _XFORMER = _ToDbusXformer()
