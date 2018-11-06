@@ -6,13 +6,11 @@ import sys
 
 arg_map = {
     "src/into_dbus_python": [
-        "--reports=no", "--disable=I", "--disable=bad-continuation",
-        "--disable=invalid-name",
+        "--reports=no", "--disable=I", "--disable=invalid-name",
         "--msg-template='{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}'"
     ],
     "tests": [
-        "--reports=no", "--disable=I", "--disable=bad-continuation",
-        "--disable=invalid-name",
+        "--reports=no", "--disable=I", "--disable=invalid-name",
         "--msg-template='{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}'"
     ]
 }
