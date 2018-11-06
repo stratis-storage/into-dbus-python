@@ -37,20 +37,19 @@ from into_dbus_python import IntoDPError
 # Omits h, unix fd, because it is unclear what are valid fds for dbus
 SIGNATURE_STRATEGY = dbus_signatures(max_codes=20, blacklist="h")
 
-OBJECT_PATH_STRATEGY = strategies.one_of(
+OBJECT_PATH_STRATEGY = strategies.builds(
+    '/'.__add__,
     strategies.builds(
-        '/'.__add__,
-        strategies.builds(
-            '/'.join,
-            strategies.lists(
-                strategies.text(
-                    alphabet=[
-                        x for x in string.digits + string.ascii_uppercase +
-                        string.ascii_lowercase + '_'
-                    ],
-                    min_size=1,
-                    max_size=10),
-                max_size=10))))
+        '/'.join,
+        strategies.lists(
+            strategies.text(
+                alphabet=[
+                    x for x in string.digits + string.ascii_uppercase +
+                    string.ascii_lowercase + '_'
+                ],
+                min_size=1,
+                max_size=10),
+            max_size=10)))
 
 
 class StrategyGenerator(Parser):
