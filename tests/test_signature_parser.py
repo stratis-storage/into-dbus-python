@@ -180,9 +180,12 @@ class ParseTestCase(unittest.TestCase):
     Test parsing various signatures.
     """
 
-    @given(SIGNATURE_STRATEGY)
-    @settings(max_examples=100)
-    def test_parsing(self, a_signature):
+    @given(strategies.data())
+    @settings(
+        max_examples=10,
+        suppress_health_check=[HealthCheck.too_slow],
+        deadline=None)
+    def test_parsing(self, data):
         """
         Test that parsing is always succesful.
 
@@ -192,45 +195,38 @@ class ParseTestCase(unittest.TestCase):
         Verify that the variant levels always descend within the constructed
         value.
         """
-        base_type_objects = [
-            x.example() for x in STRATEGY_GENERATOR.parseString(
-                a_signature, parseAll=True)
-        ]
-        results = xformers(a_signature)
-        funcs = [f for (f, _) in results]
-        sigs = [s for (_, s) in results]
+        a_signature = data.draw(
+            dbus_signatures(
+                min_complete_types=1, max_complete_types=1, blacklist="h"))
+        base_type_object = data.draw(
+            STRATEGY_GENERATOR.parseString(a_signature, parseAll=True)[0])
 
-        results = [f(x) for (f, x) in zip(funcs, base_type_objects)]
-        values = [v for (v, _) in results]
-        levels = [l for (_, l) in results]
+        (func, sig_synth) = xformers(a_signature)[0]
+        (value, level) = func(base_type_object)
+        sig_orig = dbus.Signature(a_signature)
 
-        for sig_orig, (sig_synth, (level, value)) in \
-           zip(dbus.Signature(a_signature), zip(sigs, zip(levels, values))):
-            self.assertEqual(sig_orig, sig_synth)
-            if 'v' not in sig_orig:
-                self.assertEqual(level, 0)
-            self.assertIsNotNone(_descending(value))
-            self.assertEqual(signature(value), sig_orig)
+        self.assertEqual(sig_orig, sig_synth)
 
-        pairs = zip(
-            dbus.Signature(a_signature),
-            xformer(a_signature)(base_type_objects))
-        # test equality of signatures, rather than results, since nan != nan
-        for sig, value in pairs:
-            self.assertEqual(sig, signature(value))
+        if 'v' not in sig_orig:
+            self.assertEqual(level, 0)
+        self.assertIsNotNone(_descending(value))
+        self.assertEqual(signature(value), sig_orig)
 
-    @given(
-        dbus_signatures(min_complete_types=1,
-                        blacklist="h").map(lambda x: "(%s)" % x))
-    @settings(max_examples=10)
-    def test_struct(self, sig):
+    @given(strategies.data())
+    @settings(
+        max_examples=10,
+        suppress_health_check=[HealthCheck.too_slow],
+        deadline=None)
+    def test_struct(self, data):
         """
         Test exception throwing on a struct signature when number of items
         is not equal to number of complete types in struct signature.
         """
-        struct = \
-           [x.example() for x in \
-              STRATEGY_GENERATOR.parseString(sig, parseAll=True)][0]
+        sig = data.draw(
+            dbus_signatures(min_complete_types=1,
+                            blacklist="h").map(lambda x: "(%s)" % x))
+        struct = data.draw(
+            STRATEGY_GENERATOR.parseString(sig, parseAll=True)[0])
 
         xform = xformer(sig)
 
