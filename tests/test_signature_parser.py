@@ -15,6 +15,7 @@
 Test signature parsing.
 """
 
+from os import sys
 import string
 import unittest
 
@@ -33,6 +34,10 @@ from into_dbus_python import xformer
 from into_dbus_python import xformers
 from into_dbus_python import signature
 from into_dbus_python import IntoDPError
+
+settings.register_profile("tracing", deadline=None)
+if sys.gettrace() is not None:
+    settings.load_profile("tracing")
 
 # Omits h, unix fd, because it is unclear what are valid fds for dbus
 SIGNATURE_STRATEGY = dbus_signatures(max_codes=20, blacklist="h")
