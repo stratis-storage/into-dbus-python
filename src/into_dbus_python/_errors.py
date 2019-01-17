@@ -20,7 +20,6 @@ class IntoDPError(Exception):
     """
     Top-level error.
     """
-    pass
 
 
 class IntoDPValueError(IntoDPError):
