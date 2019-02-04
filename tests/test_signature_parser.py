@@ -35,7 +35,8 @@ from into_dbus_python import xformers
 from into_dbus_python import signature
 from into_dbus_python import IntoDPError
 
-settings.register_profile("tracing", deadline=None)
+settings.register_profile(
+    "tracing", deadline=None, suppress_health_check=[HealthCheck.too_slow])
 if sys.gettrace() is not None:
     settings.load_profile("tracing")
 
@@ -185,12 +186,14 @@ class ParseTestCase(unittest.TestCase):
     Test parsing various signatures.
     """
 
-    @given(strategies.data())
-    @settings(
-        max_examples=10,
-        suppress_health_check=[HealthCheck.too_slow],
-        deadline=None)
-    def test_parsing(self, data):
+    @given(dbus_signatures(
+        min_complete_types=1,
+        max_complete_types=1,
+        blacklist="h").flatmap(lambda s: strategies.tuples(
+            strategies.just(s),
+            STRATEGY_GENERATOR.parseString(s, parseAll=True)[0])))
+    @settings(deadline=None, suppress_health_check=[HealthCheck.too_slow])
+    def test_parsing(self, strat):
         """
         Test that parsing is always succesful.
 
@@ -200,11 +203,7 @@ class ParseTestCase(unittest.TestCase):
         Verify that the variant levels always descend within the constructed
         value.
         """
-        a_signature = data.draw(
-            dbus_signatures(
-                min_complete_types=1, max_complete_types=1, blacklist="h"))
-        base_type_object = data.draw(
-            STRATEGY_GENERATOR.parseString(a_signature, parseAll=True)[0])
+        (a_signature, base_type_object) = strat
 
         (func, sig_synth) = xformers(a_signature)[0]
         (value, level) = func(base_type_object)
@@ -217,21 +216,21 @@ class ParseTestCase(unittest.TestCase):
         self.assertIsNotNone(_descending(value))
         self.assertEqual(signature(value), sig_orig)
 
-    @given(strategies.data())
+    @given(dbus_signatures(
+        min_complete_types=1,
+        blacklist="h").map(lambda s: "(%s)" % s).flatmap(lambda s: strategies.tuples(
+            strategies.just(s),
+            STRATEGY_GENERATOR.parseString(s, parseAll=True)[0])))
     @settings(
         max_examples=10,
         suppress_health_check=[HealthCheck.too_slow],
         deadline=None)
-    def test_struct(self, data):
+    def test_struct(self, strat):
         """
         Test exception throwing on a struct signature when number of items
         is not equal to number of complete types in struct signature.
         """
-        sig = data.draw(
-            dbus_signatures(min_complete_types=1,
-                            blacklist="h").map(lambda x: "(%s)" % x))
-        struct = data.draw(
-            STRATEGY_GENERATOR.parseString(sig, parseAll=True)[0])
+        (sig, struct) = strat
 
         xform = xformer(sig)
 
@@ -277,7 +276,7 @@ class ParseTestCase(unittest.TestCase):
             dbus.Array([dbus.Boolean(False, variant_level=2)], signature="v"))
 
     @given(STRATEGY_GENERATOR.parseString('v', parseAll=True)[0])
-    @settings(max_examples=50, suppress_health_check=[HealthCheck.too_slow])
+    @settings(max_examples=50)
     def test_unpacking(self, value):
         """
         Test that signature unpacking works.
