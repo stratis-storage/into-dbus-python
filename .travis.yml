@@ -6,7 +6,7 @@ addons:
       libdbus-glib-1-dev
 
 language: python
-python: "3.4"
+python: "3.6"
 
 branches:
     only: master
