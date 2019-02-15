@@ -15,6 +15,7 @@
 Test signature parsing.
 """
 
+from os import environ
 from os import sys
 import string
 import unittest
@@ -37,7 +38,7 @@ from into_dbus_python import IntoDPError
 
 settings.register_profile(
     "tracing", deadline=None, suppress_health_check=[HealthCheck.too_slow])
-if sys.gettrace() is not None:
+if sys.gettrace() is not None or environ.get('TRAVIS') is not None:
     settings.load_profile("tracing")
 
 # Omits h, unix fd, because it is unclear what are valid fds for dbus
