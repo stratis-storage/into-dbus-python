@@ -1,6 +1,7 @@
 os: linux
+dist: xenial
 language: python
-python: "3.4" # dbus-python does not compile on higher versions of Python
+python: "3.5" # dbus-python does not compile on higher versions of Python
 
 addons:
   apt:
