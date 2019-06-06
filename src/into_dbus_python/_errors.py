@@ -22,6 +22,38 @@ class IntoDPError(Exception):
     """
 
 
+class IntoDPGenerationError(IntoDPError):
+    """
+    Raised when there was a failure to generate a transformer method from
+    a signature.
+    """
+    pass
+
+
+class IntoDPParseError(IntoDPGenerationError):
+    """
+    Raised when there was a failure to parse the signature.
+    """
+    _FMT_STR = "failed to parse signature %s"
+
+    def __init__(self, signature, msg=None):  # pragma: no cover
+        """
+        Initializer.
+
+        :param str signature: the D-Bus signature
+        :param str msg: an explanatory message
+        """
+        # pylint: disable=super-init-not-called
+        self._signature = signature
+        self._msg = msg
+
+    def __str__(self):  # pragma: no cover
+        if self._msg:
+            fmt_str = self._FMT_STR + ": %s"
+            return fmt_str % (self._signature, self._msg)
+        return self._FMT_STR % self._signature
+
+
 class IntoDPValueError(IntoDPError):
     """ Raised when a parameter has an unacceptable value.
 
