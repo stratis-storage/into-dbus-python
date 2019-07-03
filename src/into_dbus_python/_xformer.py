@@ -41,14 +41,15 @@ def _wrapper(func):
     """
 
     @functools.wraps(func)
-    def the_func(expr):
+    def the_func(expr, variant=0):
         """
         The actual function.
 
         :param object expr: the expression to be xformed to dbus-python types
+        :param int variant: the variant level of the transformed object
         """
         try:
-            return func(expr)
+            return func(expr, variant=variant)
         # Allow KeyboardInterrupt error to be propagated
         except KeyboardInterrupt as err:  # pragma: no cover
             raise err
