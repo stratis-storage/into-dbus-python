@@ -8,3 +8,9 @@
 
 # coverage output
 htmlcov
+
+# packaging
+dist
+
+# vim
+*.swo
