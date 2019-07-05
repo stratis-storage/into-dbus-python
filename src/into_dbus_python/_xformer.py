@@ -93,7 +93,6 @@ class _ToDbusXformer(Parser):
             :returns: a value of the correct type with correct variant level
             :rtype: object * int
             """
-            # pylint: disable=unused-argument
             (signature, an_obj) = a_tuple
             (func, sig) = self.COMPLETE.parseString(signature)[0]
             assert sig == signature
