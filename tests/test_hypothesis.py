@@ -150,50 +150,6 @@ class StrategyGenerator(Parser):
 STRATEGY_GENERATOR = StrategyGenerator().PARSER
 
 
-def _descending(dbus_object):
-    """
-    Verify levels of variant values always descend.
-
-    :param object dbus_object: a dbus object
-    :returns: None if there was a failure of the property, otherwise the level
-    :rtype: int or NoneType
-
-    None is a better choice than False, for 0, a valid variant level, is always
-    interpreted as False.
-    """
-    # pylint: disable=too-many-return-statements
-    if isinstance(dbus_object, dbus.Dictionary):
-        key_levels = [_descending(x) for x in dbus_object.keys()]
-        value_levels = [_descending(x) for x in dbus_object.values()]
-        if any(k is None for k in key_levels) or any(v is None for v in value_levels):
-            return None
-
-        max_key_level = max(key_levels) if key_levels != [] else 0
-        max_value_level = max(value_levels) if value_levels != [] else 0
-        max_level = max(max_key_level, max_value_level)
-
-        variant_level = dbus_object.variant_level
-        if variant_level == 0:
-            return max_level
-
-        return None if variant_level < max_level + 1 else variant_level
-
-    if isinstance(dbus_object, (dbus.Array, dbus.Struct)):
-        levels = [_descending(x) for x in dbus_object]
-        if any(l is None for l in levels):
-            return None
-
-        max_level = max(levels) if levels != [] else 0
-
-        variant_level = dbus_object.variant_level
-        if variant_level == 0:
-            return max_level
-
-        return None if variant_level < max_level + 1 else variant_level
-
-    return dbus_object.variant_level
-
-
 class ParseTestCase(unittest.TestCase):
     """
     Test parsing various signatures.
@@ -222,14 +178,11 @@ class ParseTestCase(unittest.TestCase):
         (a_signature, base_type_object) = strat
 
         (func, sig_synth) = xformers(a_signature)[0]
-        (value, level) = func(base_type_object)
+        value = func(base_type_object)
         sig_orig = dbus.Signature(a_signature)
 
         self.assertEqual(sig_orig, sig_synth)
 
-        if "v" not in sig_orig:
-            self.assertEqual(level, 0)
-        self.assertIsNotNone(_descending(value))
         self.assertEqual(signature(value), sig_orig)
 
     @given(

@@ -50,7 +50,10 @@ class ParseTestCase(unittest.TestCase):
         """
         Verify that a nested variant has appropriate variant depth.
         """
-        self.assertEqual(xformer("v")([("v", ("v", ("b", False)))])[0].variant_level, 3)
+        self.assertEqual(
+            xformer("v")([("v", ("v", ("b", False)))])[0],
+            dbus.Boolean(False, variant_level=3),
+        )
         self.assertEqual(
             xformer("v")([("v", ("ab", [False]))])[0],
             dbus.Array([dbus.Boolean(False)], signature="b", variant_level=2),
@@ -58,6 +61,22 @@ class ParseTestCase(unittest.TestCase):
         self.assertEqual(
             xformer("av")([([("v", ("b", False))])])[0],
             dbus.Array([dbus.Boolean(False, variant_level=2)], signature="v"),
+        )
+        self.assertEqual(
+            xformer("a{bv}")([{True: ("b", False)}])[0],
+            dbus.Dictionary({dbus.Boolean(True): dbus.Boolean(False, variant_level=1)}),
+        )
+        self.assertEqual(
+            xformer("(bv)")([(True, ("b", False))])[0],
+            dbus.Struct([dbus.Boolean(True), dbus.Boolean(False, variant_level=1)]),
+        )
+        self.assertEqual(
+            xformer("(bv)")([(True, ("v", ("b", True)))])[0],
+            dbus.Struct(
+                [dbus.Boolean(True), dbus.Boolean(True, variant_level=2)],
+                signature="bv",
+                variant_level=0,
+            ),
         )
 
 
