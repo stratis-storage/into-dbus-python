@@ -52,6 +52,10 @@ class ParseTestCase(unittest.TestCase):
         """
         self.assertEqual(xformer("v")([("v", ("v", ("b", False)))])[0].variant_level, 3)
         self.assertEqual(
+            xformer("v")([("v", ("v", ("b", False)))])[0],
+            dbus.Boolean(False, variant_level=3),
+        )
+        self.assertEqual(
             xformer("v")([("v", ("ab", [False]))])[0],
             dbus.Array([dbus.Boolean(False)], signature="b", variant_level=2),
         )
