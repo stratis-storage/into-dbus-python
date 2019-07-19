@@ -71,11 +71,15 @@ def signature(dbus_object, unpack=False):
         len_value_sigs = len(value_sigs)
 
         if len_key_sigs != len_value_sigs:
+            # It seems impossible to force a dbus-python Dictionary value
+            # to have this property; the Dictionary constructor prevents it.
             raise IntoDPSignatureError(
                 "the dbus-python Dictionary object %s does not have a valid signature"
                 % dbus_object, dbus_object)  # pragma: no cover
 
         if len_key_sigs > 1:
+            # It seems impossible to force a dbus-python Dictionary value
+            # to have this property; the Dictionary constructor prevents it.
             raise IntoDPSignatureError(
                 "the dbus-python Dictionary object %s has different signatures for different keys"
                 % dbus_object, dbus_object)  # pragma: no cover

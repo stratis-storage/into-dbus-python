@@ -178,6 +178,8 @@ class _ToDbusXformer(Parser):
 
             return (the_array_func, 'a' + sig)
 
+        # This should be impossible, because a parser error is raised on
+        # an unexpected token before the handler is invoked.
         raise IntoDPImpossibleTokenError("Encountered unexpected tokens in the token stream") \
                 # pragma: no cover
 
