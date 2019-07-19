@@ -21,13 +21,16 @@ import dbus
 
 from dbus_signature_pyparsing import Parser
 
-from ._errors import IntoDPValueError
+from ._errors import IntoDPError
+from ._errors import IntoDPImpossibleTokenError
+from ._errors import IntoDPSurprisingError
+from ._errors import IntoDPUnexpectedValueError
 
 
 def _wrapper(func):
     """
-    Wraps a generated function so that it catches all Type- and ValueErrors
-    and raises IntoDPValueErrors.
+    Wraps a generated function so that it catches all unexpected errors and
+    raises IntoDPSurprisingErrors.
 
     :param func: the transforming function
     """
@@ -41,9 +44,15 @@ def _wrapper(func):
         """
         try:
             return func(expr)
-        except (TypeError, ValueError) as err:
-            raise IntoDPValueError(expr, "expr", "could not be transformed") \
-               from err
+        # Allow KeyboardInterrupt error to be propagated
+        except KeyboardInterrupt as err:  # pragma: no cover
+            raise err
+        except IntoDPError as err:
+            raise err
+        except BaseException as err:
+            raise IntoDPSurprisingError(
+                "encountered a surprising error while transforming some expression",
+                expr) from err
 
     return the_func
 
@@ -154,8 +163,9 @@ class _ToDbusXformer(Parser):
                 :rtype: Array * int
                 """
                 if isinstance(a_list, dict):
-                    raise IntoDPValueError(a_list, "a_list",
-                                           "is a dict, must be an array")
+                    raise IntoDPUnexpectedValueError(
+                        "expected a list for an array but found a dict: %s" %
+                        a_list, a_list)
                 elements = [func(x) for x in a_list]
                 level = 0 if elements == [] else max(x for (_, x) in elements)
                 (obj_level, func_level) = \
@@ -168,8 +178,8 @@ class _ToDbusXformer(Parser):
 
             return (the_array_func, 'a' + sig)
 
-        raise IntoDPValueError(toks, "toks",
-                               "unexpected tokens")  # pragma: no cover
+        raise IntoDPImpossibleTokenError("Encountered unexpected tokens in the token stream") \
+                # pragma: no cover
 
     @staticmethod
     def _handle_struct(toks):
@@ -193,18 +203,16 @@ class _ToDbusXformer(Parser):
             :param int variant: variant index
             :returns: a dbus Struct of transformed values and variant level
             :rtype: Struct * int
-            :raises IntoDPValueError:
+            :raises IntoDPRuntimeError:
             """
             if isinstance(a_list, dict):
-                raise IntoDPValueError(a_list, "a_list",
-                                       "must be a simple sequence, is a dict")
+                raise IntoDPUnexpectedValueError(
+                    "expected a simple sequence for the fields of a struct but found a dict: %s"
+                    % a_list, a_list)
             if len(a_list) != len(funcs):
-                raise IntoDPValueError(
-                    a_list,
-                    "a_list",
-                    "must have exactly %u items, has %u" % \
-                      (len(funcs), len(a_list))
-                )
+                raise IntoDPUnexpectedValueError(
+                    "expected %u elements for a struct, but found %u" %
+                    (len(funcs), len(a_list)), a_list)
             elements = [f(x) for (f, x) in zip(funcs, a_list)]
             level = 0 if elements == [] else max(x for (_, x) in elements)
             (obj_level, func_level) = \
@@ -286,9 +294,6 @@ def xformers(sig):
     :param str sig: a signature
     :returns: a list of xformer functions for the given signature.
     :rtype: list of tuple of a function * str
-
-    Each function catches all TypeErrors it encounters and raises
-    corresponding IntoDPValueError exceptions.
     """
     return \
        [(_wrapper(f), l) for (f, l) in \
@@ -317,12 +322,10 @@ def xformer(signature):
         :rtype: list of object (in dbus types)
         """
         if len(objects) != len(funcs):
-            raise IntoDPValueError(
-                objects,
-                "objects",
-                "must have exactly %u items, has %u" % \
-                  (len(funcs), len(objects))
-            )
+            raise IntoDPUnexpectedValueError(
+                "expected %u items to transform but found %u" % (len(funcs),
+                                                                 len(objects)),
+                objects)
         return [x for (x, _) in (f(a) for (f, a) in zip(funcs, objects))]
 
     return the_func

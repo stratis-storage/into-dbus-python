@@ -276,6 +276,39 @@ class ParseTestCase(unittest.TestCase):
             xformer('av')([([('v', ('b', False))])])[0],
             dbus.Array([dbus.Boolean(False, variant_level=2)], signature="v"))
 
+
+class SignatureTestCase(unittest.TestCase):
+    """
+    Tests for the signature method.
+    """
+
+    def test_exceptions(self):
+        """
+        Test that exceptions are properly raised.
+        """
+        with self.assertRaises(IntoDPError):
+            signature(
+                dbus.Array(
+                    [dbus.Boolean(False, variant_level=2),
+                     dbus.Byte(0)],
+                    signature="v"))
+
+        with self.assertRaises(IntoDPError):
+            signature("w")
+
+        with self.assertRaises(IntoDPError):
+
+            class TestObject:
+                """
+                A test  object that resembles a dbus-python object in having
+                a variant_level field, but isn't actually a dbus-python
+                object.
+                """
+                # pylint: disable=too-few-public-methods
+                variant_level = 0
+
+            signature(TestObject())
+
     @given(STRATEGY_GENERATOR.parseString('v', parseAll=True)[0])
     @settings(max_examples=50)
     def test_unpacking(self, value):
