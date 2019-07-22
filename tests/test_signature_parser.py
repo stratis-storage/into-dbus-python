@@ -35,7 +35,9 @@ from hs_dbus_signature import dbus_signatures
 from into_dbus_python import xformer
 from into_dbus_python import xformers
 from into_dbus_python import signature
-from into_dbus_python import IntoDPError
+
+from into_dbus_python._errors import IntoDPSignatureError
+from into_dbus_python._errors import IntoDPUnexpectedValueError
 
 settings.register_profile(
     "tracing", deadline=None, suppress_health_check=[HealthCheck.too_slow])
@@ -236,10 +238,10 @@ class ParseTestCase(unittest.TestCase):
 
         xform = xformer(sig)
 
-        with self.assertRaises(IntoDPError):
+        with self.assertRaises(IntoDPUnexpectedValueError):
             xform([struct + (1, )])
 
-        with self.assertRaises(IntoDPError):
+        with self.assertRaises(IntoDPUnexpectedValueError):
             xform([struct[:-1]])
 
     @given(dbus_signatures(blacklist="hbs", exclude_dicts=True))
@@ -255,14 +257,14 @@ class ParseTestCase(unittest.TestCase):
 
         xform = xformer(sig)
 
-        with self.assertRaises(IntoDPError):
+        with self.assertRaises(IntoDPUnexpectedValueError):
             xform([{True: True}])
 
     def test_bad_array_value(self):
         """
         Verify that passing a dict for an array will raise an exception.
         """
-        with self.assertRaises(IntoDPError):
+        with self.assertRaises(IntoDPUnexpectedValueError):
             xformer('a(qq)')([dict()])
 
     def test_variant_depth(self):
@@ -288,17 +290,17 @@ class SignatureTestCase(unittest.TestCase):
         """
         Test that exceptions are properly raised.
         """
-        with self.assertRaises(IntoDPError):
+        with self.assertRaises(IntoDPSignatureError):
             signature(
                 dbus.Array(
                     [dbus.Boolean(False, variant_level=2),
                      dbus.Byte(0)],
                     signature="v"))
 
-        with self.assertRaises(IntoDPError):
+        with self.assertRaises(IntoDPSignatureError):
             signature("w")
 
-        with self.assertRaises(IntoDPError):
+        with self.assertRaises(IntoDPSignatureError):
 
             class TestObject:
                 """
