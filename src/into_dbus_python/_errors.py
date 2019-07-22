@@ -66,7 +66,7 @@ class IntoDPSurprisingError(IntoDPRuntimeError):
     libraries.
     """
 
-    def __init__(self, message, value):
+    def __init__(self, message, value):  # pragma: no cover
         """
         Initializer.
 

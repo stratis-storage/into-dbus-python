@@ -24,6 +24,7 @@ import dbus
 
 from dbus_signature_pyparsing import Parser
 
+from hypothesis import example
 from hypothesis import given
 from hypothesis import settings
 from hypothesis import strategies
@@ -243,6 +244,7 @@ class ParseTestCase(unittest.TestCase):
 
     @given(dbus_signatures(blacklist="hbs", exclude_dicts=True))
     @settings(max_examples=100)
+    @example(sig="v")
     def test_exceptions(self, sig):
         """
         Test that an exception is raised for a dict if '{' is blacklisted.

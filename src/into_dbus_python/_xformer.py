@@ -49,7 +49,7 @@ def _wrapper(func):
             raise err
         except IntoDPError as err:
             raise err
-        except BaseException as err:
+        except BaseException as err:  # pragma: no cover
             raise IntoDPSurprisingError(
                 "encountered a surprising error while transforming some expression",
                 expr) from err
@@ -102,8 +102,16 @@ class _ToDbusXformer(Parser):
             :returns: a value of the correct type with correct variant level
             :rtype: object * int
             """
-            (signature, an_obj) = a_tuple
-            (func, sig) = self.COMPLETE.parseString(signature)[0]
+            try:
+                (signature, an_obj) = a_tuple
+                (func, sig) = self.COMPLETE.parseString(signature)[0]
+            # Allow KeyboardInterrupt error to be propagated
+            except KeyboardInterrupt as err:  # pragma: no cover
+                raise err
+            except BaseException as err:
+                raise IntoDPUnexpectedValueError(
+                    "inappropriate argument or signature for variant type",
+                    a_tuple) from err
             assert sig == signature
             (xformed, _) = func(an_obj, variant=variant + 1)
             return (xformed, xformed.variant_level)
@@ -245,7 +253,15 @@ class _ToDbusXformer(Parser):
             """
             (obj_level, func_level) = _ToDbusXformer._variant_levels(
                 0, variant)
-            return (klass(value, variant_level=obj_level), func_level)
+            try:
+                return (klass(value, variant_level=obj_level), func_level)
+            # Allow KeyboardInterrupt error to be propagated
+            except KeyboardInterrupt as err:  # pragma: no cover
+                raise err
+            except BaseException as err:
+                raise IntoDPUnexpectedValueError(
+                    "inappropriate value passed to dbus-python constructor",
+                    value) from err
 
         return lambda: (the_func, symbol)
 
