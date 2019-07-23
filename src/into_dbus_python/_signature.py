@@ -17,7 +17,7 @@ Definition of signature method.
 
 import dbus
 
-from ._errors import IntoDPValueError
+from ._errors import IntoDPSignatureError
 
 
 def signature(dbus_object, unpack=False):
@@ -33,15 +33,26 @@ def signature(dbus_object, unpack=False):
     # pylint: disable=too-many-return-statements
     # pylint: disable=too-many-branches
 
+    # This check is here for two reasons:
+    # The object passed may not be a dbus object, and consequently may not
+    # have a variant_level attribute. It may also be a UnixFd dbus object,
+    # which does not have a variant_level attribute. See bug:
+    # https://github.com/stratis-storage/into-dbus-python/issues/37.
+    if not hasattr(dbus_object, "variant_level"):
+        raise IntoDPSignatureError(
+            ("value does not have a variant_level attribute, "
+             "can not determine the correct signature"), dbus_object)
+
     if dbus_object.variant_level != 0 and not unpack:
         return 'v'
 
     if isinstance(dbus_object, dbus.Array):
         sigs = frozenset(signature(x) for x in dbus_object)
         len_sigs = len(sigs)
-        if len_sigs > 1:  # pragma: no cover
-            raise IntoDPValueError(dbus_object, "dbus_object",
-                                   "has bad signature")
+        if len_sigs > 1:
+            raise IntoDPSignatureError(
+                "the dbus-python Array object %s has items with varying signatures"
+                % dbus_object, dbus_object)
 
         if len_sigs == 0:
             return 'a' + dbus_object.signature
@@ -59,13 +70,19 @@ def signature(dbus_object, unpack=False):
         len_key_sigs = len(key_sigs)
         len_value_sigs = len(value_sigs)
 
-        if len_key_sigs != len_value_sigs:  # pragma: no cover
-            raise IntoDPValueError(dbus_object, "dbus_object",
-                                   "has bad signature")
+        if len_key_sigs != len_value_sigs:
+            # It seems impossible to force a dbus-python Dictionary value
+            # to have this property; the Dictionary constructor prevents it.
+            raise IntoDPSignatureError(
+                "the dbus-python Dictionary object %s does not have a valid signature"
+                % dbus_object, dbus_object)  # pragma: no cover
 
-        if len_key_sigs > 1:  # pragma: no cover
-            raise IntoDPValueError(dbus_object, "dbus_object",
-                                   "has bad signature")
+        if len_key_sigs > 1:
+            # It seems impossible to force a dbus-python Dictionary value
+            # to have this property; the Dictionary constructor prevents it.
+            raise IntoDPSignatureError(
+                "the dbus-python Dictionary object %s has different signatures for different keys"
+                % dbus_object, dbus_object)  # pragma: no cover
 
         if len_key_sigs == 0:
             return 'a{' + dbus_object.signature + '}'
@@ -112,5 +129,5 @@ def signature(dbus_object, unpack=False):
     if isinstance(dbus_object, dbus.types.UnixFd):  # pragma: no cover
         return 'h'
 
-    raise IntoDPValueError(dbus_object, "dbus_object",
-                           "has no signature")  # pragma: no cover
+    raise IntoDPSignatureError("object is not a dbus-python object type",
+                               dbus_object)

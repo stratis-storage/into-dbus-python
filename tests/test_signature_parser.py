@@ -24,6 +24,7 @@ import dbus
 
 from dbus_signature_pyparsing import Parser
 
+from hypothesis import example
 from hypothesis import given
 from hypothesis import settings
 from hypothesis import strategies
@@ -34,7 +35,9 @@ from hs_dbus_signature import dbus_signatures
 from into_dbus_python import xformer
 from into_dbus_python import xformers
 from into_dbus_python import signature
-from into_dbus_python import IntoDPError
+
+from into_dbus_python._errors import IntoDPSignatureError
+from into_dbus_python._errors import IntoDPUnexpectedValueError
 
 settings.register_profile(
     "tracing", deadline=None, suppress_health_check=[HealthCheck.too_slow])
@@ -235,14 +238,15 @@ class ParseTestCase(unittest.TestCase):
 
         xform = xformer(sig)
 
-        with self.assertRaises(IntoDPError):
+        with self.assertRaises(IntoDPUnexpectedValueError):
             xform([struct + (1, )])
 
-        with self.assertRaises(IntoDPError):
+        with self.assertRaises(IntoDPUnexpectedValueError):
             xform([struct[:-1]])
 
     @given(dbus_signatures(blacklist="hbs", exclude_dicts=True))
     @settings(max_examples=100)
+    @example(sig="v")
     def test_exceptions(self, sig):
         """
         Test that an exception is raised for a dict if '{' is blacklisted.
@@ -253,14 +257,14 @@ class ParseTestCase(unittest.TestCase):
 
         xform = xformer(sig)
 
-        with self.assertRaises(IntoDPError):
+        with self.assertRaises(IntoDPUnexpectedValueError):
             xform([{True: True}])
 
     def test_bad_array_value(self):
         """
         Verify that passing a dict for an array will raise an exception.
         """
-        with self.assertRaises(IntoDPError):
+        with self.assertRaises(IntoDPUnexpectedValueError):
             xformer('a(qq)')([dict()])
 
     def test_variant_depth(self):
@@ -275,6 +279,39 @@ class ParseTestCase(unittest.TestCase):
         self.assertEqual(
             xformer('av')([([('v', ('b', False))])])[0],
             dbus.Array([dbus.Boolean(False, variant_level=2)], signature="v"))
+
+
+class SignatureTestCase(unittest.TestCase):
+    """
+    Tests for the signature method.
+    """
+
+    def test_exceptions(self):
+        """
+        Test that exceptions are properly raised.
+        """
+        with self.assertRaises(IntoDPSignatureError):
+            signature(
+                dbus.Array(
+                    [dbus.Boolean(False, variant_level=2),
+                     dbus.Byte(0)],
+                    signature="v"))
+
+        with self.assertRaises(IntoDPSignatureError):
+            signature("w")
+
+        with self.assertRaises(IntoDPSignatureError):
+
+            class TestObject:
+                """
+                A test  object that resembles a dbus-python object in having
+                a variant_level field, but isn't actually a dbus-python
+                object.
+                """
+                # pylint: disable=too-few-public-methods
+                variant_level = 0
+
+            signature(TestObject())
 
     @given(STRATEGY_GENERATOR.parseString('v', parseAll=True)[0])
     @settings(max_examples=50)

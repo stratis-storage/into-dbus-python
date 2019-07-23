@@ -22,27 +22,72 @@ class IntoDPError(Exception):
     """
 
 
-class IntoDPValueError(IntoDPError):
-    """ Raised when a parameter has an unacceptable value.
-
-        May also be raised when the parameter has an unacceptable type.
+class IntoDPGenerationError(IntoDPError):
     """
-    _FMT_STR = "value '%s' for parameter %s is unacceptable"
+    Exception raised during generation of a function.
+    """
 
-    def __init__(self, value, param, msg=None):  # pragma: no cover
-        """ Initializer.
 
-            :param object value: the value
-            :param str param: the parameter
-            :param str msg: an explanatory message
+class IntoDPImpossibleTokenError(IntoDPGenerationError):
+    """
+    Exception raised when an impossible token is encountered.
+    This should never occur, because the parser should fail.
+    """
+
+
+class IntoDPRuntimeError(IntoDPError):
+    """
+    Exception raised during execution of generated functions.
+    """
+
+
+class IntoDPUnexpectedValueError(IntoDPRuntimeError):
+    """
+    Exception raised when an unexpected value is encountered during a
+    transformation.
+    """
+
+    def __init__(self, message, value):
         """
-        # pylint: disable=super-init-not-called
-        self._value = value
-        self._param = param
-        self._msg = msg
+        Initializer.
 
-    def __str__(self):  # pragma: no cover
-        if self._msg:
-            fmt_str = self._FMT_STR + ": %s"
-            return fmt_str % (self._value, self._param, self._msg)
-        return self._FMT_STR % (self._value, self._param)
+        :param str message: the message
+        :param object value: the value encountered
+        """
+        super(IntoDPUnexpectedValueError, self).__init__(message)
+        self.value = value
+
+
+class IntoDPSurprisingError(IntoDPRuntimeError):
+    """
+    Exception raised when a surprising error is caught during a transformation.
+    Surprising errors can arise due to undocumented or incorrectly documented
+    behaviors of dependent libraries or bugs in this library or dependent
+    libraries.
+    """
+
+    def __init__(self, message, value):  # pragma: no cover
+        """
+        Initializer.
+
+        :param str message: the message
+        :param object value: the value encountered
+        """
+        super(IntoDPSurprisingError, self).__init__(message)
+        self.value = value
+
+
+class IntoDPSignatureError(IntoDPError):
+    """
+    Exception raised when a value does not seem to have a valid signature.
+    """
+
+    def __init__(self, message, value):
+        """
+        Initializer.
+
+        :param str message: the message
+        :param object value: the problematic putative dbus-python object
+        """
+        super(IntoDPSignatureError, self).__init__(message)
+        self.value = value
