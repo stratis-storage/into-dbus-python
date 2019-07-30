@@ -132,9 +132,7 @@ class StrategyGenerator(Parser):
 
         self.ARRAY.setParseAction(StrategyGenerator._handle_array)
 
-        self.STRUCT.setParseAction(
-            # pylint: disable=used-before-assignment
-            lambda toks: strategies.tuples(*toks[1:-1]))
+        self.STRUCT.setParseAction(lambda toks: strategies.tuples(*toks[1:-1]))
 
 
 STRATEGY_GENERATOR = StrategyGenerator().PARSER
