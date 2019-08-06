@@ -52,7 +52,8 @@ def _wrapper(func):
         except BaseException as err:  # pragma: no cover
             raise IntoDPSurprisingError(
                 "encountered a surprising error while transforming some expression",
-                expr) from err
+                expr,
+            ) from err
 
     return the_func
 
@@ -68,6 +69,7 @@ class _ToDbusXformer(Parser):
     types, as may be necessary if the Array or Dictionary is empty, and so
     the type can not be inferred from the contents of the value.
     """
+
     # pylint: disable=too-few-public-methods
 
     @staticmethod
@@ -81,8 +83,7 @@ class _ToDbusXformer(Parser):
         :returns: a level for the object and one for the function
         :rtype: int * int
         """
-        return (level + variant, level + variant) \
-           if variant != 0 else (variant, level)
+        return (level + variant, level + variant) if variant != 0 else (variant, level)
 
     def _handle_variant(self):
         """
@@ -110,13 +111,13 @@ class _ToDbusXformer(Parser):
                 raise err
             except BaseException as err:
                 raise IntoDPUnexpectedValueError(
-                    "inappropriate argument or signature for variant type",
-                    a_tuple) from err
+                    "inappropriate argument or signature for variant type", a_tuple
+                ) from err
             assert sig == signature
             (xformed, _) = func(an_obj, variant=variant + 1)
             return (xformed, xformed.variant_level)
 
-        return (the_func, 'v')
+        return (the_func, "v")
 
     @staticmethod
     def _handle_array(toks):
@@ -128,9 +129,9 @@ class _ToDbusXformer(Parser):
         :rtype: ((or list dict) -> ((or Array Dictionary) * int)) * str
         """
 
-        if len(toks) == 5 and toks[1] == '{' and toks[4] == '}':
+        if len(toks) == 5 and toks[1] == "{" and toks[4] == "}":
             subtree = toks[2:4]
-            signature = ''.join(s for (_, s) in subtree)
+            signature = "".join(s for (_, s) in subtree)
             [key_func, value_func] = [f for (f, _) in subtree]
 
             def the_dict_func(a_dict, variant=0):
@@ -144,18 +145,23 @@ class _ToDbusXformer(Parser):
                 :returns: a dbus dictionary of transformed values and level
                 :rtype: Dictionary * int
                 """
-                elements = \
-                   [(key_func(x), value_func(y)) for (x, y) in a_dict.items()]
-                level = 0 if elements == [] \
-                   else max(max(x, y) for ((_, x), (_, y)) in elements)
-                (obj_level, func_level) = \
-                   _ToDbusXformer._variant_levels(level, variant)
-                return (dbus.types.Dictionary(
-                    ((x, y) for ((x, _), (y, _)) in elements),
-                    signature=signature,
-                    variant_level=obj_level), func_level)
+                elements = [(key_func(x), value_func(y)) for (x, y) in a_dict.items()]
+                level = (
+                    0
+                    if elements == []
+                    else max(max(x, y) for ((_, x), (_, y)) in elements)
+                )
+                (obj_level, func_level) = _ToDbusXformer._variant_levels(level, variant)
+                return (
+                    dbus.types.Dictionary(
+                        ((x, y) for ((x, _), (y, _)) in elements),
+                        signature=signature,
+                        variant_level=obj_level,
+                    ),
+                    func_level,
+                )
 
-            return (the_dict_func, 'a{' + signature + '}')
+            return (the_dict_func, "a{" + signature + "}")
 
         if len(toks) == 2:
             (func, sig) = toks[1]
@@ -172,24 +178,29 @@ class _ToDbusXformer(Parser):
                 """
                 if isinstance(a_list, dict):
                     raise IntoDPUnexpectedValueError(
-                        "expected a list for an array but found a dict: %s" %
-                        a_list, a_list)
+                        "expected a list for an array but found a dict: %s" % a_list,
+                        a_list,
+                    )
                 elements = [func(x) for x in a_list]
                 level = 0 if elements == [] else max(x for (_, x) in elements)
-                (obj_level, func_level) = \
-                   _ToDbusXformer._variant_levels(level, variant)
+                (obj_level, func_level) = _ToDbusXformer._variant_levels(level, variant)
 
-                return (dbus.types.Array(
-                    (x for (x, _) in elements),
-                    signature=sig,
-                    variant_level=obj_level), func_level)
+                return (
+                    dbus.types.Array(
+                        (x for (x, _) in elements),
+                        signature=sig,
+                        variant_level=obj_level,
+                    ),
+                    func_level,
+                )
 
-            return (the_array_func, 'a' + sig)
+            return (the_array_func, "a" + sig)
 
         # This should be impossible, because a parser error is raised on
         # an unexpected token before the handler is invoked.
-        raise IntoDPImpossibleTokenError("Encountered unexpected tokens in the token stream") \
-                # pragma: no cover
+        raise IntoDPImpossibleTokenError(
+            "Encountered unexpected tokens in the token stream"
+        )  # pragma: no cover
 
     @staticmethod
     def _handle_struct(toks):
@@ -201,7 +212,7 @@ class _ToDbusXformer(Parser):
         :rtype: ((list or tuple) -> (Struct * int)) * str
         """
         subtrees = toks[1:-1]
-        signature = ''.join(s for (_, s) in subtrees)
+        signature = "".join(s for (_, s) in subtrees)
         funcs = [f for (f, _) in subtrees]
 
         def the_func(a_list, variant=0):
@@ -218,21 +229,28 @@ class _ToDbusXformer(Parser):
             if isinstance(a_list, dict):
                 raise IntoDPUnexpectedValueError(
                     "expected a simple sequence for the fields of a struct but found a dict: %s"
-                    % a_list, a_list)
+                    % a_list,
+                    a_list,
+                )
             if len(a_list) != len(funcs):
                 raise IntoDPUnexpectedValueError(
-                    "expected %u elements for a struct, but found %u" %
-                    (len(funcs), len(a_list)), a_list)
+                    "expected %u elements for a struct, but found %u"
+                    % (len(funcs), len(a_list)),
+                    a_list,
+                )
             elements = [f(x) for (f, x) in zip(funcs, a_list)]
             level = 0 if elements == [] else max(x for (_, x) in elements)
-            (obj_level, func_level) = \
-                _ToDbusXformer._variant_levels(level, variant)
-            return (dbus.types.Struct(
-                (x for (x, _) in elements),
-                signature=signature,
-                variant_level=obj_level), func_level)
+            (obj_level, func_level) = _ToDbusXformer._variant_levels(level, variant)
+            return (
+                dbus.types.Struct(
+                    (x for (x, _) in elements),
+                    signature=signature,
+                    variant_level=obj_level,
+                ),
+                func_level,
+            )
 
-        return (the_func, '(' + signature + ')')
+        return (the_func, "(" + signature + ")")
 
     @staticmethod
     def _handle_base_case(klass, symbol):
@@ -251,8 +269,7 @@ class _ToDbusXformer(Parser):
             :returns: a tuple of a dbus object and the variant level
             :rtype: dbus object * int
             """
-            (obj_level, func_level) = _ToDbusXformer._variant_levels(
-                0, variant)
+            (obj_level, func_level) = _ToDbusXformer._variant_levels(0, variant)
             try:
                 return (klass(value, variant_level=obj_level), func_level)
             # Allow KeyboardInterrupt error to be propagated
@@ -260,40 +277,51 @@ class _ToDbusXformer(Parser):
                 raise err
             except BaseException as err:
                 raise IntoDPUnexpectedValueError(
-                    "inappropriate value passed to dbus-python constructor",
-                    value) from err
+                    "inappropriate value passed to dbus-python constructor", value
+                ) from err
 
         return lambda: (the_func, symbol)
 
     def __init__(self):
         super(_ToDbusXformer, self).__init__()
 
-        self.BYTE.setParseAction(
-            _ToDbusXformer._handle_base_case(dbus.types.Byte, 'y'))
+        self.BYTE.setParseAction(_ToDbusXformer._handle_base_case(dbus.types.Byte, "y"))
         self.BOOLEAN.setParseAction(
-            _ToDbusXformer._handle_base_case(dbus.types.Boolean, 'b'))
+            _ToDbusXformer._handle_base_case(dbus.types.Boolean, "b")
+        )
         self.INT16.setParseAction(
-            _ToDbusXformer._handle_base_case(dbus.types.Int16, 'n'))
+            _ToDbusXformer._handle_base_case(dbus.types.Int16, "n")
+        )
         self.UINT16.setParseAction(
-            _ToDbusXformer._handle_base_case(dbus.types.UInt16, 'q'))
+            _ToDbusXformer._handle_base_case(dbus.types.UInt16, "q")
+        )
         self.INT32.setParseAction(
-            _ToDbusXformer._handle_base_case(dbus.types.Int32, 'i'))
+            _ToDbusXformer._handle_base_case(dbus.types.Int32, "i")
+        )
         self.UINT32.setParseAction(
-            _ToDbusXformer._handle_base_case(dbus.types.UInt32, 'u'))
+            _ToDbusXformer._handle_base_case(dbus.types.UInt32, "u")
+        )
         self.INT64.setParseAction(
-            _ToDbusXformer._handle_base_case(dbus.types.Int64, 'x'))
+            _ToDbusXformer._handle_base_case(dbus.types.Int64, "x")
+        )
         self.UINT64.setParseAction(
-            _ToDbusXformer._handle_base_case(dbus.types.UInt64, 't'))
+            _ToDbusXformer._handle_base_case(dbus.types.UInt64, "t")
+        )
         self.DOUBLE.setParseAction(
-            _ToDbusXformer._handle_base_case(dbus.types.Double, 'd'))
+            _ToDbusXformer._handle_base_case(dbus.types.Double, "d")
+        )
         self.UNIX_FD.setParseAction(
-            _ToDbusXformer._handle_base_case(dbus.types.UnixFd, 'h'))
+            _ToDbusXformer._handle_base_case(dbus.types.UnixFd, "h")
+        )
         self.STRING.setParseAction(
-            _ToDbusXformer._handle_base_case(dbus.types.String, 's'))
+            _ToDbusXformer._handle_base_case(dbus.types.String, "s")
+        )
         self.OBJECT_PATH.setParseAction(
-            _ToDbusXformer._handle_base_case(dbus.types.ObjectPath, 'o'))
+            _ToDbusXformer._handle_base_case(dbus.types.ObjectPath, "o")
+        )
         self.SIGNATURE.setParseAction(
-            _ToDbusXformer._handle_base_case(dbus.types.Signature, 'g'))
+            _ToDbusXformer._handle_base_case(dbus.types.Signature, "g")
+        )
 
         self.VARIANT.setParseAction(self._handle_variant)
 
@@ -313,9 +341,9 @@ def xformers(sig):
     :returns: a list of xformer functions for the given signature.
     :rtype: list of tuple of a function * str
     """
-    return \
-       [(_wrapper(f), l) for (f, l) in \
-       _XFORMER.PARSER.parseString(sig, parseAll=True)]
+    return [
+        (_wrapper(f), l) for (f, l) in _XFORMER.PARSER.parseString(sig, parseAll=True)
+    ]
 
 
 def xformer(signature):
@@ -341,9 +369,10 @@ def xformer(signature):
         """
         if len(objects) != len(funcs):
             raise IntoDPUnexpectedValueError(
-                "expected %u items to transform but found %u" % (len(funcs),
-                                                                 len(objects)),
-                objects)
+                "expected %u items to transform but found %u"
+                % (len(funcs), len(objects)),
+                objects,
+            )
         return [x for (x, _) in (f(a) for (f, a) in zip(funcs, objects))]
 
     return the_func
