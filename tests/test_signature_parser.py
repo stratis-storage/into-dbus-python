@@ -40,26 +40,34 @@ from into_dbus_python._errors import IntoDPSignatureError
 from into_dbus_python._errors import IntoDPUnexpectedValueError
 
 settings.register_profile(
-    "tracing", deadline=None, suppress_health_check=[HealthCheck.too_slow])
-if sys.gettrace() is not None or environ.get('TRAVIS') is not None:
+    "tracing", deadline=None, suppress_health_check=[HealthCheck.too_slow]
+)
+if sys.gettrace() is not None or environ.get("TRAVIS") is not None:
     settings.load_profile("tracing")
 
 # Omits h, unix fd, because it is unclear what are valid fds for dbus
 SIGNATURE_STRATEGY = dbus_signatures(max_codes=20, blacklist="h")
 
 OBJECT_PATH_STRATEGY = strategies.builds(
-    '/'.__add__,
+    "/".__add__,
     strategies.builds(
-        '/'.join,
+        "/".join,
         strategies.lists(
             strategies.text(
                 alphabet=[
-                    x for x in string.digits + string.ascii_uppercase +
-                    string.ascii_lowercase + '_'
+                    x
+                    for x in string.digits
+                    + string.ascii_uppercase
+                    + string.ascii_lowercase
+                    + "_"
                 ],
                 min_size=1,
-                max_size=10),
-            max_size=10)))
+                max_size=10,
+            ),
+            max_size=10,
+        ),
+    ),
+)
 
 
 class StrategyGenerator(Parser):
@@ -67,6 +75,7 @@ class StrategyGenerator(Parser):
     Generate a hypothesis strategy for generating objects for a particular
     dbus signature which make use of base Python classes.
     """
+
     # pylint: disable=too-few-public-methods
 
     @staticmethod
@@ -79,9 +88,8 @@ class StrategyGenerator(Parser):
         :rtype: strategy
         """
 
-        if len(toks) == 5 and toks[1] == '{' and toks[4] == '}':
-            return strategies.dictionaries(
-                keys=toks[2], values=toks[3], max_size=20)
+        if len(toks) == 5 and toks[1] == "{" and toks[4] == "}":
+            return strategies.dictionaries(keys=toks[2], values=toks[3], max_size=20)
         if len(toks) == 2:
             return strategies.lists(elements=toks[1], max_size=20)
         raise ValueError("unexpected tokens")  # pragma: no cover
@@ -91,22 +99,29 @@ class StrategyGenerator(Parser):
 
         # pylint: disable=unnecessary-lambda
         self.BYTE.setParseAction(
-            lambda: strategies.integers(min_value=0, max_value=255))
+            lambda: strategies.integers(min_value=0, max_value=255)
+        )
         self.BOOLEAN.setParseAction(lambda: strategies.booleans())
         self.INT16.setParseAction(
-            lambda: strategies.integers(min_value=-0x8000, max_value=0x7fff))
+            lambda: strategies.integers(min_value=-0x8000, max_value=0x7FFF)
+        )
         self.UINT16.setParseAction(
-            lambda: strategies.integers(min_value=0, max_value=0xffff))
+            lambda: strategies.integers(min_value=0, max_value=0xFFFF)
+        )
         self.INT32.setParseAction(
-            lambda: strategies.integers(min_value=-0x80000000, max_value=0x7fffffff))
+            lambda: strategies.integers(min_value=-0x80000000, max_value=0x7FFFFFFF)
+        )
         self.UINT32.setParseAction(
-            lambda: strategies.integers(min_value=0, max_value=0xffffffff))
+            lambda: strategies.integers(min_value=0, max_value=0xFFFFFFFF)
+        )
         self.INT64.setParseAction(
             lambda: strategies.integers(
-                min_value=-0x8000000000000000,
-                max_value=0x7fffffffffffffff))
+                min_value=-0x8000000000000000, max_value=0x7FFFFFFFFFFFFFFF
+            )
+        )
         self.UINT64.setParseAction(
-            lambda: strategies.integers(min_value=0, max_value=0xffffffffffffffff))
+            lambda: strategies.integers(min_value=0, max_value=0xFFFFFFFFFFFFFFFF)
+        )
         self.DOUBLE.setParseAction(lambda: strategies.floats())
 
         self.STRING.setParseAction(lambda: strategies.text())
@@ -121,12 +136,13 @@ class StrategyGenerator(Parser):
             :rtype: strategy
             """
             signature_strategy = dbus_signatures(
-                max_codes=5,
-                min_complete_types=1,
-                max_complete_types=1,
-                blacklist="h")
+                max_codes=5, min_complete_types=1, max_complete_types=1, blacklist="h"
+            )
             return signature_strategy.flatmap(
-                lambda x: strategies.tuples(strategies.just(x), self.COMPLETE.parseString(x)[0]))
+                lambda x: strategies.tuples(
+                    strategies.just(x), self.COMPLETE.parseString(x)[0]
+                )
+            )
 
         self.VARIANT.setParseAction(_handle_variant)
 
@@ -153,8 +169,7 @@ def _descending(dbus_object):
     if isinstance(dbus_object, dbus.Dictionary):
         key_levels = [_descending(x) for x in dbus_object.keys()]
         value_levels = [_descending(x) for x in dbus_object.values()]
-        if any(k is None for k in key_levels) or \
-           any(v is None for v in value_levels):
+        if any(k is None for k in key_levels) or any(v is None for v in value_levels):
             return None
 
         max_key_level = max(key_levels) if key_levels != [] else 0
@@ -188,12 +203,15 @@ class ParseTestCase(unittest.TestCase):
     Test parsing various signatures.
     """
 
-    @given(dbus_signatures(
-        min_complete_types=1,
-        max_complete_types=1,
-        blacklist="h").flatmap(lambda s: strategies.tuples(
-            strategies.just(s),
-            STRATEGY_GENERATOR.parseString(s, parseAll=True)[0])))
+    @given(
+        dbus_signatures(
+            min_complete_types=1, max_complete_types=1, blacklist="h"
+        ).flatmap(
+            lambda s: strategies.tuples(
+                strategies.just(s), STRATEGY_GENERATOR.parseString(s, parseAll=True)[0]
+            )
+        )
+    )
     @settings(deadline=None, suppress_health_check=[HealthCheck.too_slow])
     def test_parsing(self, strat):
         """
@@ -213,20 +231,23 @@ class ParseTestCase(unittest.TestCase):
 
         self.assertEqual(sig_orig, sig_synth)
 
-        if 'v' not in sig_orig:
+        if "v" not in sig_orig:
             self.assertEqual(level, 0)
         self.assertIsNotNone(_descending(value))
         self.assertEqual(signature(value), sig_orig)
 
-    @given(dbus_signatures(
-        min_complete_types=1,
-        blacklist="h").map(lambda s: "(%s)" % s).flatmap(lambda s: strategies.tuples(
-            strategies.just(s),
-            STRATEGY_GENERATOR.parseString(s, parseAll=True)[0])))
+    @given(
+        dbus_signatures(min_complete_types=1, blacklist="h")
+        .map(lambda s: "(%s)" % s)
+        .flatmap(
+            lambda s: strategies.tuples(
+                strategies.just(s), STRATEGY_GENERATOR.parseString(s, parseAll=True)[0]
+            )
+        )
+    )
     @settings(
-        max_examples=10,
-        suppress_health_check=[HealthCheck.too_slow],
-        deadline=None)
+        max_examples=10, suppress_health_check=[HealthCheck.too_slow], deadline=None
+    )
     def test_struct(self, strat):
         """
         Test exception throwing on a struct signature when number of items
@@ -237,7 +258,7 @@ class ParseTestCase(unittest.TestCase):
         xform = xformer(sig)
 
         with self.assertRaises(IntoDPUnexpectedValueError):
-            xform([struct + (1, )])
+            xform([struct + (1,)])
 
         with self.assertRaises(IntoDPUnexpectedValueError):
             xform([struct[:-1]])
@@ -263,20 +284,21 @@ class ParseTestCase(unittest.TestCase):
         Verify that passing a dict for an array will raise an exception.
         """
         with self.assertRaises(IntoDPUnexpectedValueError):
-            xformer('a(qq)')([dict()])
+            xformer("a(qq)")([dict()])
 
     def test_variant_depth(self):
         """
         Verify that a nested variant has appropriate variant depth.
         """
+        self.assertEqual(xformer("v")([("v", ("v", ("b", False)))])[0].variant_level, 3)
         self.assertEqual(
-            xformer('v')([('v', ('v', ('b', False)))])[0].variant_level, 3)
+            xformer("v")([("v", ("ab", [False]))])[0],
+            dbus.Array([dbus.Boolean(False)], signature="b", variant_level=2),
+        )
         self.assertEqual(
-            xformer('v')([('v', ('ab', [False]))])[0],
-            dbus.Array([dbus.Boolean(False)], signature='b', variant_level=2))
-        self.assertEqual(
-            xformer('av')([([('v', ('b', False))])])[0],
-            dbus.Array([dbus.Boolean(False, variant_level=2)], signature="v"))
+            xformer("av")([([("v", ("b", False))])])[0],
+            dbus.Array([dbus.Boolean(False, variant_level=2)], signature="v"),
+        )
 
 
 class SignatureTestCase(unittest.TestCase):
@@ -291,9 +313,9 @@ class SignatureTestCase(unittest.TestCase):
         with self.assertRaises(IntoDPSignatureError):
             signature(
                 dbus.Array(
-                    [dbus.Boolean(False, variant_level=2),
-                     dbus.Byte(0)],
-                    signature="v"))
+                    [dbus.Boolean(False, variant_level=2), dbus.Byte(0)], signature="v"
+                )
+            )
 
         with self.assertRaises(IntoDPSignatureError):
             signature("w")
@@ -306,20 +328,21 @@ class SignatureTestCase(unittest.TestCase):
                 a variant_level field, but isn't actually a dbus-python
                 object.
                 """
+
                 # pylint: disable=too-few-public-methods
                 variant_level = 0
 
             signature(TestObject())
 
-    @given(STRATEGY_GENERATOR.parseString('v', parseAll=True)[0])
+    @given(STRATEGY_GENERATOR.parseString("v", parseAll=True)[0])
     @settings(max_examples=50)
     def test_unpacking(self, value):
         """
         Test that signature unpacking works.
         """
-        dbus_value = xformer('v')([value])[0]
+        dbus_value = xformer("v")([value])[0]
         unpacked = signature(dbus_value, unpack=True)
         packed = signature(dbus_value)
 
-        self.assertEqual(packed, 'v')
-        self.assertFalse(unpacked.startswith('v'))
+        self.assertEqual(packed, "v")
+        self.assertFalse(unpacked.startswith("v"))

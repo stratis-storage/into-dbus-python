@@ -40,11 +40,15 @@ def signature(dbus_object, unpack=False):
     # https://github.com/stratis-storage/into-dbus-python/issues/37.
     if not hasattr(dbus_object, "variant_level"):
         raise IntoDPSignatureError(
-            ("value does not have a variant_level attribute, "
-             "can not determine the correct signature"), dbus_object)
+            (
+                "value does not have a variant_level attribute, "
+                "can not determine the correct signature"
+            ),
+            dbus_object,
+        )
 
     if dbus_object.variant_level != 0 and not unpack:
-        return 'v'
+        return "v"
 
     if isinstance(dbus_object, dbus.Array):
         sigs = frozenset(signature(x) for x in dbus_object)
@@ -52,16 +56,18 @@ def signature(dbus_object, unpack=False):
         if len_sigs > 1:
             raise IntoDPSignatureError(
                 "the dbus-python Array object %s has items with varying signatures"
-                % dbus_object, dbus_object)
+                % dbus_object,
+                dbus_object,
+            )
 
         if len_sigs == 0:
-            return 'a' + dbus_object.signature
+            return "a" + dbus_object.signature
 
-        return 'a' + [x for x in sigs][0]
+        return "a" + [x for x in sigs][0]
 
     if isinstance(dbus_object, dbus.Struct):
         sigs = (signature(x) for x in dbus_object)
-        return '(' + "".join(x for x in sigs) + ')'
+        return "(" + "".join(x for x in sigs) + ")"
 
     if isinstance(dbus_object, dbus.Dictionary):
         key_sigs = frozenset(signature(x) for x in dbus_object.keys())
@@ -75,59 +81,61 @@ def signature(dbus_object, unpack=False):
             # to have this property; the Dictionary constructor prevents it.
             raise IntoDPSignatureError(
                 "the dbus-python Dictionary object %s does not have a valid signature"
-                % dbus_object, dbus_object)  # pragma: no cover
+                % dbus_object,
+                dbus_object,
+            )  # pragma: no cover
 
         if len_key_sigs > 1:
             # It seems impossible to force a dbus-python Dictionary value
             # to have this property; the Dictionary constructor prevents it.
             raise IntoDPSignatureError(
                 "the dbus-python Dictionary object %s has different signatures for different keys"
-                % dbus_object, dbus_object)  # pragma: no cover
+                % dbus_object,
+                dbus_object,
+            )  # pragma: no cover
 
         if len_key_sigs == 0:
-            return 'a{' + dbus_object.signature + '}'
+            return "a{" + dbus_object.signature + "}"
 
-        return 'a{' + [x for x in key_sigs][0] + [x
-                                                  for x in value_sigs][0] + '}'
+        return "a{" + [x for x in key_sigs][0] + [x for x in value_sigs][0] + "}"
 
     if isinstance(dbus_object, dbus.Boolean):
-        return 'b'
+        return "b"
 
     if isinstance(dbus_object, dbus.Byte):
-        return 'y'
+        return "y"
 
     if isinstance(dbus_object, dbus.Double):
-        return 'd'
+        return "d"
 
     if isinstance(dbus_object, dbus.Int16):
-        return 'n'
+        return "n"
 
     if isinstance(dbus_object, dbus.Int32):
-        return 'i'
+        return "i"
 
     if isinstance(dbus_object, dbus.Int64):
-        return 'x'
+        return "x"
 
     if isinstance(dbus_object, dbus.ObjectPath):
-        return 'o'
+        return "o"
 
     if isinstance(dbus_object, dbus.Signature):
-        return 'g'
+        return "g"
 
     if isinstance(dbus_object, dbus.String):
-        return 's'
+        return "s"
 
     if isinstance(dbus_object, dbus.UInt16):
-        return 'q'
+        return "q"
 
     if isinstance(dbus_object, dbus.UInt32):
-        return 'u'
+        return "u"
 
     if isinstance(dbus_object, dbus.UInt64):
-        return 't'
+        return "t"
 
     if isinstance(dbus_object, dbus.types.UnixFd):  # pragma: no cover
-        return 'h'
+        return "h"
 
-    raise IntoDPSignatureError("object is not a dbus-python object type",
-                               dbus_object)
+    raise IntoDPSignatureError("object is not a dbus-python object type", dbus_object)
