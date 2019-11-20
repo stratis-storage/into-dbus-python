@@ -135,7 +135,11 @@ class StrategyGenerator(Parser):
             :rtype: strategy
             """
             signature_strategy = dbus_signatures(
-                max_codes=5, min_complete_types=1, max_complete_types=1, blacklist="h"
+                max_codes=2,
+                max_struct_len=2,
+                min_complete_types=1,
+                max_complete_types=1,
+                blacklist="h",
             )
             return signature_strategy.flatmap(
                 lambda x: strategies.tuples(
