@@ -54,13 +54,12 @@ OBJECT_PATH_STRATEGY = strategies.builds(
         "/".join,
         strategies.lists(
             strategies.text(
-                alphabet=[
-                    x
-                    for x in string.digits
+                alphabet=list(
+                    string.digits
                     + string.ascii_uppercase
                     + string.ascii_lowercase
                     + "_"
-                ],
+                ),
                 min_size=1,
                 max_size=10,
             ),

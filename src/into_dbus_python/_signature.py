@@ -63,7 +63,7 @@ def signature(dbus_object, unpack=False):
         if len_sigs == 0:
             return "a" + dbus_object.signature
 
-        return "a" + [x for x in sigs][0]
+        return "a" + list(sigs)[0]
 
     if isinstance(dbus_object, dbus.Struct):
         sigs = (signature(x) for x in dbus_object)
@@ -97,7 +97,7 @@ def signature(dbus_object, unpack=False):
         if len_key_sigs == 0:
             return "a{" + dbus_object.signature + "}"
 
-        return "a{" + [x for x in key_sigs][0] + [x for x in value_sigs][0] + "}"
+        return "a{" + list(key_sigs)[0] + list(value_sigs)[0] + "}"
 
     if isinstance(dbus_object, dbus.Boolean):
         return "b"
