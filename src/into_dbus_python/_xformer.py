@@ -15,16 +15,21 @@
 Transforming Python basic types to Python dbus types.
 """
 
+# isort: STDLIB
 import functools
 
+# isort: THIRDPARTY
 import dbus
 
+# isort: FIRSTPARTY
 from dbus_signature_pyparsing import Parser
 
-from ._errors import IntoDPError
-from ._errors import IntoDPImpossibleTokenError
-from ._errors import IntoDPSurprisingError
-from ._errors import IntoDPUnexpectedValueError
+from ._errors import (
+    IntoDPError,
+    IntoDPImpossibleTokenError,
+    IntoDPSurprisingError,
+    IntoDPUnexpectedValueError,
+)
 
 
 def _wrapper(func):

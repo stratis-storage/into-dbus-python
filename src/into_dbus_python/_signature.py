@@ -15,6 +15,7 @@
 Definition of signature method.
 """
 
+# isort: THIRDPARTY
 import dbus
 
 from ._errors import IntoDPSignatureError

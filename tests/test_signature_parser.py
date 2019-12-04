@@ -15,29 +15,22 @@
 Test signature parsing.
 """
 
-from os import environ
-from os import sys
+# isort: STDLIB
 import string
 import unittest
+from os import environ, sys
 
+# isort: THIRDPARTY
 import dbus
+from hypothesis import HealthCheck, example, given, settings, strategies
 
+# isort: FIRSTPARTY
 from dbus_signature_pyparsing import Parser
-
-from hypothesis import example
-from hypothesis import given
-from hypothesis import settings
-from hypothesis import strategies
-from hypothesis import HealthCheck
-
 from hs_dbus_signature import dbus_signatures
 
-from into_dbus_python import xformer
-from into_dbus_python import xformers
-from into_dbus_python import signature
-
-from into_dbus_python._errors import IntoDPSignatureError
-from into_dbus_python._errors import IntoDPUnexpectedValueError
+# isort: LOCAL
+from into_dbus_python import signature, xformer, xformers
+from into_dbus_python._errors import IntoDPSignatureError, IntoDPUnexpectedValueError
 
 settings.register_profile(
     "tracing", deadline=None, suppress_health_check=[HealthCheck.too_slow]
