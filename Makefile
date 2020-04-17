@@ -1,12 +1,14 @@
-TOX=tox
-
 .PHONY: lint
 lint:
-	$(TOX) -c tox.ini -e lint
+	./check.py src/into_dbus_python
+	./check.py tests
 
 .PHONY: coverage
 coverage:
-	$(TOX) -c tox.ini -e coverage
+	python3 -m coverage --version
+	python3 -m coverage run --timid --branch -m unittest discover tests
+	python3 -m coverage report -m --fail-under=100 --show-missing --include="./src/*"
+	python3 -m coverage html --include="./src/*"
 
 .PHONY: fmt
 fmt:
@@ -20,11 +22,11 @@ fmt-travis:
 
 .PHONY: test
 test:
-	$(TOX) -c tox.ini -e test
+	python3 -m unittest discover --verbose tests
 
 .PHONY: upload-release
 upload-release:
-	python setup.py register sdist upload
+	python3 setup.py register sdist upload
 
 .PHONY: yamllint
 yamllint:

@@ -1,7 +1,6 @@
 ---
 os: linux
 language: python
-python: "3.7"
 
 addons:
   apt:
@@ -11,14 +10,59 @@ addons:
 branches:
   only: master
 
-env:
-  - TASK=fmt-travis
-  - TASK=lint
-  - TASK=test
-  - TASK=coverage
-
 jobs:
   include:
+    - name: "check formatting using recommended development Python intepreter"
+      python: "3.7.6"
+      install: pip install black==19.3b0 isort==4.3.4
+      script: make -f Makefile fmt-travis
+    - name: "run pylint using recommended development Python interpreter"
+      python: "3.7.6"
+      install:
+        - >
+          pip
+          install
+          pylint==2.4.4
+          dbus-python==1.2.8
+          dbus-signature-pyparsing==0.3
+          hs-dbus-signature==0.6
+          hypothesis==4.23.8
+      script: PYTHONPATH=./src make -f Makefile lint
+    - name: "run tests using recommended development Python interpreter"
+      python: "3.7.6"
+      install:
+        - >
+          pip
+          install
+          dbus-python==1.2.8
+          dbus-signature-pyparsing==0.3
+          hs-dbus-signature==0.6
+          hypothesis==4.23.8
+      script: PYTHONPATH=./src make -f Makefile test
+    - name: "run coverage using recommended development Python interpreter"
+      python: "3.7.6"
+      install:
+        - >
+          pip
+          install
+          coverage==4.5.1
+          dbus-python==1.2.8
+          dbus-signature-pyparsing==0.3
+          hs-dbus-signature==0.6
+          hypothesis==4.23.8
+      script: PYTHONPATH=./src make -f Makefile coverage
+    - name: "run pylint using lowest supported Python interpreter"
+      python: "3.6.8"
+      install:
+        - >
+          pip
+          install
+          pylint==2.3.1
+          dbus-python==1.2.8
+          dbus-signature-pyparsing==0.3
+          hs-dbus-signature==0.6
+          hypothesis==4.23.8
+      script: PYTHONPATH=./src make -f Makefile lint
 
     # VERIFICATION OF TEST INFRASTRUCTURE
     - name: "run yamllint 1.23.0 on .travis.yml"
