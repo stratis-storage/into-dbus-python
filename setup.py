@@ -39,7 +39,7 @@ setuptools.setup(
         "Topic :: Software Development :: Libraries",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    install_requires=["dbus-signature-pyparsing", "dbus-python"],
+    install_requires=["dbus-signature-pyparsing", "dbus-python>=1.2.10"],
     package_dir={"": "src"},
     packages=setuptools.find_packages("src"),
     url="https://github.com/stratis-storage/into-dbus-python",

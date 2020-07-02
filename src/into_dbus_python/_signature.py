@@ -34,11 +34,8 @@ def signature(dbus_object, unpack=False):
     # pylint: disable=too-many-return-statements
     # pylint: disable=too-many-branches
 
-    # This check is here for two reasons:
     # The object passed may not be a dbus object, and consequently may not
-    # have a variant_level attribute. It may also be a UnixFd dbus object,
-    # which does not have a variant_level attribute. See bug:
-    # https://github.com/stratis-storage/into-dbus-python/issues/37.
+    # have a variant_level attribute.
     if not hasattr(dbus_object, "variant_level"):
         raise IntoDPSignatureError(
             (
