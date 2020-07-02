@@ -89,11 +89,10 @@ class StrategyGenerator(Parser):
     def __init__(self):
         super(StrategyGenerator, self).__init__()
 
-        # pylint: disable=unnecessary-lambda
         self.BYTE.setParseAction(
             lambda: strategies.integers(min_value=0, max_value=255)
         )
-        self.BOOLEAN.setParseAction(lambda: strategies.booleans())
+        self.BOOLEAN.setParseAction(strategies.booleans)
         self.INT16.setParseAction(
             lambda: strategies.integers(min_value=-0x8000, max_value=0x7FFF)
         )
@@ -114,9 +113,9 @@ class StrategyGenerator(Parser):
         self.UINT64.setParseAction(
             lambda: strategies.integers(min_value=0, max_value=0xFFFFFFFFFFFFFFFF)
         )
-        self.DOUBLE.setParseAction(lambda: strategies.floats())
+        self.DOUBLE.setParseAction(strategies.floats)
 
-        self.STRING.setParseAction(lambda: strategies.text())
+        self.STRING.setParseAction(strategies.text)
         self.OBJECT_PATH.setParseAction(lambda: OBJECT_PATH_STRATEGY)
         self.SIGNATURE.setParseAction(lambda: SIGNATURE_STRATEGY)
 
