@@ -150,3 +150,8 @@ The package has undergone significant testing using the Hypothesis testing
 library (http://hypothesis.works/) and the external Hypothesis strategy
 implemented in the hs-dbus-signature package
 (https://github.com/stratis-storage/hs-dbus-signature).
+
+Downstream packagers, if incorporating testing into their packaging, are
+encouraged to use only the tests in the test_deterministic.py module, to
+avoid testing failures that may arise due to the non-deterministic behavior
+of Hypothesis tests.

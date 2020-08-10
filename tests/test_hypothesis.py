@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Test signature parsing.
+Hypothesis-based tests of signature parsing and calculation.
 """
 
 # isort: STDLIB
@@ -30,7 +30,7 @@ from hs_dbus_signature import dbus_signatures
 
 # isort: LOCAL
 from into_dbus_python import signature, xformer, xformers
-from into_dbus_python._errors import IntoDPSignatureError, IntoDPUnexpectedValueError
+from into_dbus_python._errors import IntoDPUnexpectedValueError
 
 settings.register_profile(
     "tracing", deadline=None, suppress_health_check=[HealthCheck.too_slow]
@@ -275,60 +275,11 @@ class ParseTestCase(unittest.TestCase):
         with self.assertRaises(IntoDPUnexpectedValueError):
             xform([{True: True}])
 
-    def test_bad_array_value(self):
-        """
-        Verify that passing a dict for an array will raise an exception.
-        """
-        with self.assertRaises(IntoDPUnexpectedValueError):
-            xformer("a(qq)")([dict()])
-
-    def test_variant_depth(self):
-        """
-        Verify that a nested variant has appropriate variant depth.
-        """
-        self.assertEqual(xformer("v")([("v", ("v", ("b", False)))])[0].variant_level, 3)
-        self.assertEqual(
-            xformer("v")([("v", ("ab", [False]))])[0],
-            dbus.Array([dbus.Boolean(False)], signature="b", variant_level=2),
-        )
-        self.assertEqual(
-            xformer("av")([([("v", ("b", False))])])[0],
-            dbus.Array([dbus.Boolean(False, variant_level=2)], signature="v"),
-        )
-
 
 class SignatureTestCase(unittest.TestCase):
     """
     Tests for the signature method.
     """
-
-    def test_exceptions(self):
-        """
-        Test that exceptions are properly raised.
-        """
-        with self.assertRaises(IntoDPSignatureError):
-            signature(
-                dbus.Array(
-                    [dbus.Boolean(False, variant_level=2), dbus.Byte(0)], signature="v"
-                )
-            )
-
-        with self.assertRaises(IntoDPSignatureError):
-            signature("w")
-
-        with self.assertRaises(IntoDPSignatureError):
-
-            class TestObject:
-                """
-                A test  object that resembles a dbus-python object in having
-                a variant_level field, but isn't actually a dbus-python
-                object.
-                """
-
-                # pylint: disable=too-few-public-methods
-                variant_level = 0
-
-            signature(TestObject())
 
     @given(STRATEGY_GENERATOR.parseString("v", parseAll=True)[0])
     @settings(max_examples=50)
