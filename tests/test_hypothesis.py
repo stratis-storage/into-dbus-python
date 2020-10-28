@@ -87,7 +87,7 @@ class StrategyGenerator(Parser):
         raise ValueError("unexpected tokens")  # pragma: no cover
 
     def __init__(self):
-        super(StrategyGenerator, self).__init__()
+        super().__init__()
 
         # pylint: disable=unnecessary-lambda
         self.BYTE.setParseAction(

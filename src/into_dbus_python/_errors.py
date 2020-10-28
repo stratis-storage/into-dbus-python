@@ -54,7 +54,7 @@ class IntoDPUnexpectedValueError(IntoDPRuntimeError):
         :param str message: the message
         :param object value: the value encountered
         """
-        super(IntoDPUnexpectedValueError, self).__init__(message)
+        super().__init__(message)
         self.value = value
 
 
@@ -73,7 +73,7 @@ class IntoDPSurprisingError(IntoDPRuntimeError):
         :param str message: the message
         :param object value: the value encountered
         """
-        super(IntoDPSurprisingError, self).__init__(message)
+        super().__init__(message)
         self.value = value
 
 
@@ -89,5 +89,5 @@ class IntoDPSignatureError(IntoDPError):
         :param str message: the message
         :param object value: the problematic putative dbus-python object
         """
-        super(IntoDPSignatureError, self).__init__(message)
+        super().__init__(message)
         self.value = value
