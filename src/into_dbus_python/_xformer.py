@@ -288,7 +288,7 @@ class _ToDbusXformer(Parser):
         return lambda: (the_func, symbol)
 
     def __init__(self):
-        super(_ToDbusXformer, self).__init__()
+        super().__init__()
 
         self.BYTE.setParseAction(_ToDbusXformer._handle_base_case(dbus.types.Byte, "y"))
         self.BOOLEAN.setParseAction(
