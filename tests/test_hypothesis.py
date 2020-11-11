@@ -293,3 +293,11 @@ class SignatureTestCase(unittest.TestCase):
 
         self.assertEqual(packed, "v")
         self.assertFalse(unpacked.startswith("v"))
+
+    @given(OBJECT_PATH_STRATEGY.map(dbus.ObjectPath))
+    @settings(max_examples=2)
+    def test_object_path(self, value):
+        """
+        Test that the signature of an object path is "o".
+        """
+        self.assertEqual(signature(value), "o")
