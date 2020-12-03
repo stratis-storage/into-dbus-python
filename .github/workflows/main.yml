@@ -24,7 +24,10 @@ jobs:
         with:
           python-version: 3.7.9
       - name: Install dependencies
-        run: pip3 install tox==3.13.2
+        run: |
+          sudo apt-get -q update
+          sudo apt-get -y install libdbus-glib-1-dev
+          pip3 install tox==3.13.2
       - name: Run test
         run: make -f Makefile ${{ matrix.task }}
 
