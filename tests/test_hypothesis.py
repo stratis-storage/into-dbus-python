@@ -18,7 +18,7 @@ Hypothesis-based tests of signature parsing and calculation.
 # isort: STDLIB
 import string
 import unittest
-from os import environ, sys
+from os import sys
 
 # isort: THIRDPARTY
 import dbus
@@ -35,7 +35,7 @@ from into_dbus_python._errors import IntoDPUnexpectedValueError
 settings.register_profile(
     "tracing", deadline=None, suppress_health_check=[HealthCheck.too_slow]
 )
-if sys.gettrace() is not None or environ.get("TRAVIS") is not None:
+if sys.gettrace() is not None:
     settings.load_profile("tracing")
 
 # Omits h, unix fd, because it is unclear what are valid fds for dbus
