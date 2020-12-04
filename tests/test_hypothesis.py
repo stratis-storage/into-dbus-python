@@ -301,3 +301,91 @@ class SignatureTestCase(unittest.TestCase):
         Test that the signature of an object path is "o".
         """
         self.assertEqual(signature(value), "o")
+
+    @given(STRATEGY_GENERATOR.parseString("b", parseAll=True)[0].map(dbus.Boolean))
+    @settings(max_examples=2)
+    def test_boolean(self, value):
+        """
+        Test that the signature of a boolean type is "b".
+        """
+        self.assertEqual(signature(value), "b")
+
+    @given(STRATEGY_GENERATOR.parseString("y", parseAll=True)[0].map(dbus.Byte))
+    @settings(max_examples=2)
+    def test_byte(self, value):
+        """
+        Test that the signature of a byte type is "y".
+        """
+        self.assertEqual(signature(value), "y")
+
+    @given(STRATEGY_GENERATOR.parseString("d", parseAll=True)[0].map(dbus.Double))
+    @settings(max_examples=2)
+    def test_double(self, value):
+        """
+        Test that the signature of a double type is "d".
+        """
+        self.assertEqual(signature(value), "d")
+
+    @given(STRATEGY_GENERATOR.parseString("n", parseAll=True)[0].map(dbus.Int16))
+    @settings(max_examples=2)
+    def test_int16(self, value):
+        """
+        Test that the signature of an int16 type is "n".
+        """
+        self.assertEqual(signature(value), "n")
+
+    @given(STRATEGY_GENERATOR.parseString("i", parseAll=True)[0].map(dbus.Int32))
+    @settings(max_examples=2)
+    def test_int32(self, value):
+        """
+        Test that the signature of an int32 type is "i".
+        """
+        self.assertEqual(signature(value), "i")
+
+    @given(STRATEGY_GENERATOR.parseString("x", parseAll=True)[0].map(dbus.Int64))
+    @settings(max_examples=2)
+    def test_int64(self, value):
+        """
+        Test that the signature of an int64 type is "x".
+        """
+        self.assertEqual(signature(value), "x")
+
+    @given(STRATEGY_GENERATOR.parseString("g", parseAll=True)[0].map(dbus.Signature))
+    @settings(max_examples=2)
+    def test_signature(self, value):
+        """
+        Test that the signature of a signature type is "g".
+        """
+        self.assertEqual(signature(value), "g")
+
+    @given(STRATEGY_GENERATOR.parseString("s", parseAll=True)[0].map(dbus.String))
+    @settings(max_examples=2)
+    def test_string(self, value):
+        """
+        Test that the signature of a string type is "s".
+        """
+        self.assertEqual(signature(value), "s")
+
+    @given(STRATEGY_GENERATOR.parseString("q", parseAll=True)[0].map(dbus.UInt16))
+    @settings(max_examples=2)
+    def test_uint16(self, value):
+        """
+        Test that the signature of a uint16 type is "q".
+        """
+        self.assertEqual(signature(value), "q")
+
+    @given(STRATEGY_GENERATOR.parseString("u", parseAll=True)[0].map(dbus.UInt32))
+    @settings(max_examples=2)
+    def test_uint32(self, value):
+        """
+        Test that the signature of a uint32 type is "u".
+        """
+        self.assertEqual(signature(value), "u")
+
+    @given(STRATEGY_GENERATOR.parseString("t", parseAll=True)[0].map(dbus.UInt64))
+    @settings(max_examples=2)
+    def test_uint64(self, value):
+        """
+        Test that the signature of a uint64 type is "t".
+        """
+        self.assertEqual(signature(value), "t")
