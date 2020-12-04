@@ -50,7 +50,6 @@ class ParseTestCase(unittest.TestCase):
         """
         Verify that a nested variant has appropriate variant depth.
         """
-        self.assertEqual(xformer("v")([("v", ("v", ("b", False)))])[0].variant_level, 3)
         self.assertEqual(
             xformer("v")([("v", ("v", ("b", False)))])[0],
             dbus.Boolean(False, variant_level=3),
