@@ -62,6 +62,22 @@ class ParseTestCase(unittest.TestCase):
             xformer("av")([([("v", ("b", False))])])[0],
             dbus.Array([dbus.Boolean(False, variant_level=2)], signature="v"),
         )
+        self.assertEqual(
+            xformer("a{bv}")([{True: ("b", False)}])[0],
+            dbus.Dictionary({dbus.Boolean(True): dbus.Boolean(False, variant_level=1)}),
+        )
+        self.assertEqual(
+            xformer("(bv)")([(True, ("b", False))])[0],
+            dbus.Struct([dbus.Boolean(True), dbus.Boolean(False, variant_level=1)]),
+        )
+        self.assertEqual(
+            xformer("(bv)")([(True, ("v", ("b", True)))])[0],
+            dbus.Struct(
+                [dbus.Boolean(True), dbus.Boolean(True, variant_level=2)],
+                signature="bv",
+                variant_level=0,
+            ),
+        )
 
 
 class SignatureTestCase(unittest.TestCase):
