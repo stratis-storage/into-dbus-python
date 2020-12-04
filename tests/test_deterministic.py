@@ -38,6 +38,14 @@ class ParseTestCase(unittest.TestCase):
         with self.assertRaises(IntoDPUnexpectedValueError):
             xformer("a(qq)")([dict()])
 
+    def test_bad_base_case_value(self):
+        """
+        Verify that transforming a string to a numeric value will raise an
+        exception.
+        """
+        with self.assertRaises(IntoDPUnexpectedValueError):
+            xformer("x")(["string"])
+
     def test_variant_depth(self):
         """
         Verify that a nested variant has appropriate variant depth.
