@@ -21,7 +21,7 @@ import dbus
 from ._errors import IntoDPSignatureError
 
 
-def signature(dbus_object, unpack=False):
+def signature(dbus_object, *, unpack=False):
     """
     Get the signature of a dbus object.
 
