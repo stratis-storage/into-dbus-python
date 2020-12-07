@@ -10,6 +10,12 @@ YAML linter: yamllint (1.23.0)
 New dependency version requirement:
   * dbus-python >= 1.2.10
 
+- Fix a bug that calculated the variant level incorrectly for generated values:
+  https://github.com/stratis-storage/into-dbus-python/pull/62
+
+- Extend _wrapper function around generated functions to take variant_level:
+  https://github.com/stratis-storage/into-dbus-python/pull/30
+
 - Add additional exceptions in error heirarchy:
   https://github.com/stratis-storage/into-dbus-python/pull/35
 
@@ -17,6 +23,7 @@ New dependency version requirement:
   https://github.com/stratis-storage/into-dbus-python/pull/53
 
 - Tidies and Maintenance:
+  https://github.com/stratis-storage/into-dbus-python/pull/61
   https://github.com/stratis-storage/into-dbus-python/pull/60
   https://github.com/stratis-storage/into-dbus-python/pull/58
   https://github.com/stratis-storage/into-dbus-python/pull/55
