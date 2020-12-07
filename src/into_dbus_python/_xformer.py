@@ -77,19 +77,6 @@ class _ToDbusXformer(Parser):
 
     # pylint: disable=too-few-public-methods
 
-    @staticmethod
-    def _variant_levels(level, variant):
-        """
-        Gets the level for the variant.
-
-        :param int level: the current variant level
-        :param int variant: the value for this level if variant
-
-        :returns: a level for the object and one for the function
-        :rtype: int * int
-        """
-        return (level + variant, level + variant) if variant != 0 else (variant, level)
-
     def _handle_variant(self):
         """
         Generate the correct function for a variant signature.
@@ -105,8 +92,8 @@ class _ToDbusXformer(Parser):
             :param a_tuple: the parts of the variant
             :type a_tuple: (str * object) or list
             :param int variant: object's variant index
-            :returns: a value of the correct type with correct variant level
-            :rtype: object * int
+            :returns: a value of the correct type
+            :rtype: object
             """
             try:
                 (signature, an_obj) = a_tuple
@@ -119,8 +106,7 @@ class _ToDbusXformer(Parser):
                     "inappropriate argument or signature for variant type", a_tuple
                 ) from err
             assert sig == signature
-            (xformed, _) = func(an_obj, variant=variant + 1)
-            return (xformed, xformed.variant_level)
+            return func(an_obj, variant=variant + 1)
 
         return (the_func, "v")
 
@@ -147,23 +133,12 @@ class _ToDbusXformer(Parser):
                 :type a_dict: dict of (`a * `b)
                 :param int variant: variant level
 
-                :returns: a dbus dictionary of transformed values and level
-                :rtype: Dictionary * int
+                :returns: a dbus dictionary of transformed values
+                :rtype: Dictionary
                 """
                 elements = [(key_func(x), value_func(y)) for (x, y) in a_dict.items()]
-                level = (
-                    0
-                    if elements == []
-                    else max(max(x, y) for ((_, x), (_, y)) in elements)
-                )
-                (obj_level, func_level) = _ToDbusXformer._variant_levels(level, variant)
-                return (
-                    dbus.types.Dictionary(
-                        ((x, y) for ((x, _), (y, _)) in elements),
-                        signature=signature,
-                        variant_level=obj_level,
-                    ),
-                    func_level,
+                return dbus.types.Dictionary(
+                    elements, signature=signature, variant_level=variant
                 )
 
             return (the_dict_func, "a{" + signature + "}")
@@ -178,8 +153,8 @@ class _ToDbusXformer(Parser):
                 :param a_list: the list to transform
                 :type a_list: list of `a
                 :param int variant: variant level of the value
-                :returns: a dbus Array of transformed values and variant level
-                :rtype: Array * int
+                :returns: a dbus Array of transformed values
+                :rtype: Array
                 """
                 if isinstance(a_list, dict):
                     raise IntoDPUnexpectedValueError(
@@ -187,17 +162,8 @@ class _ToDbusXformer(Parser):
                         a_list,
                     )
                 elements = [func(x) for x in a_list]
-                level = 0 if elements == [] else max(x for (_, x) in elements)
-                (obj_level, func_level) = _ToDbusXformer._variant_levels(level, variant)
 
-                return (
-                    dbus.types.Array(
-                        (x for (x, _) in elements),
-                        signature=sig,
-                        variant_level=obj_level,
-                    ),
-                    func_level,
-                )
+                return dbus.types.Array(elements, signature=sig, variant_level=variant)
 
             return (the_array_func, "a" + sig)
 
@@ -227,8 +193,8 @@ class _ToDbusXformer(Parser):
             :param a_list: the list to transform
             :type a_list: list or tuple
             :param int variant: variant index
-            :returns: a dbus Struct of transformed values and variant level
-            :rtype: Struct * int
+            :returns: a dbus Struct of transformed values
+            :rtype: Struct
             :raises IntoDPRuntimeError:
             """
             if isinstance(a_list, dict):
@@ -244,15 +210,8 @@ class _ToDbusXformer(Parser):
                     a_list,
                 )
             elements = [f(x) for (f, x) in zip(funcs, a_list)]
-            level = 0 if elements == [] else max(x for (_, x) in elements)
-            (obj_level, func_level) = _ToDbusXformer._variant_levels(level, variant)
-            return (
-                dbus.types.Struct(
-                    (x for (x, _) in elements),
-                    signature=signature,
-                    variant_level=obj_level,
-                ),
-                func_level,
+            return dbus.types.Struct(
+                elements, signature=signature, variant_level=variant
             )
 
         return (the_func, "(" + signature + ")")
@@ -271,12 +230,11 @@ class _ToDbusXformer(Parser):
             Base case.
 
             :param int variant: variant level for this object
-            :returns: a tuple of a dbus object and the variant level
-            :rtype: dbus object * int
+            :returns: a translated dbus-python object
+            :rtype: dbus-python object
             """
-            (obj_level, func_level) = _ToDbusXformer._variant_levels(0, variant)
             try:
-                return (klass(value, variant_level=obj_level), func_level)
+                return klass(value, variant_level=variant)
             # Allow KeyboardInterrupt error to be propagated
             except KeyboardInterrupt as err:  # pragma: no cover
                 raise err
@@ -378,6 +336,6 @@ def xformer(signature):
                 % (len(funcs), len(objects)),
                 objects,
             )
-        return [x for (x, _) in (f(a) for (f, a) in zip(funcs, objects))]
+        return [f(a) for (f, a) in zip(funcs, objects)]
 
     return the_func
