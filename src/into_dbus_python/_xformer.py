@@ -41,14 +41,15 @@ def _wrapper(func):
     """
 
     @functools.wraps(func)
-    def the_func(expr):
+    def the_func(expr, *, variant=0):
         """
         The actual function.
 
         :param object expr: the expression to be xformed to dbus-python types
+        :param int variant: the variant level of the transformed object
         """
         try:
-            return func(expr)
+            return func(expr, variant=variant)
         # Allow KeyboardInterrupt error to be propagated
         except KeyboardInterrupt as err:  # pragma: no cover
             raise err
@@ -85,7 +86,7 @@ class _ToDbusXformer(Parser):
         :rtype: ((str * object) or list)-> object
         """
 
-        def the_func(a_tuple, variant=0):
+        def the_func(a_tuple, *, variant=0):
             """
             Function for generating a variant value from a tuple.
 
@@ -125,7 +126,7 @@ class _ToDbusXformer(Parser):
             signature = "".join(s for (_, s) in subtree)
             [key_func, value_func] = [f for (f, _) in subtree]
 
-            def the_dict_func(a_dict, variant=0):
+            def the_dict_func(a_dict, *, variant=0):
                 """
                 Function for generating a Dictionary from a dict.
 
@@ -146,7 +147,7 @@ class _ToDbusXformer(Parser):
         if len(toks) == 2:
             (func, sig) = toks[1]
 
-            def the_array_func(a_list, variant=0):
+            def the_array_func(a_list, *, variant=0):
                 """
                 Function for generating an Array from a list.
 
@@ -186,7 +187,7 @@ class _ToDbusXformer(Parser):
         signature = "".join(s for (_, s) in subtrees)
         funcs = [f for (f, _) in subtrees]
 
-        def the_func(a_list, variant=0):
+        def the_func(a_list, *, variant=0):
             """
             Function for generating a Struct from a list.
 
@@ -225,7 +226,7 @@ class _ToDbusXformer(Parser):
         :param str symbol: the type code
         """
 
-        def the_func(value, variant=0):
+        def the_func(value, *, variant=0):
             """
             Base case.
 
