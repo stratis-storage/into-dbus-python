@@ -46,6 +46,13 @@ class ParseTestCase(unittest.TestCase):
         with self.assertRaises(IntoDPUnexpectedValueError):
             xformer("x")(["string"])
 
+    def test_bad_struct_value(self):
+        """
+        Verify that transforming a dict when a struct is expected fails.
+        """
+        with self.assertRaises(IntoDPUnexpectedValueError):
+            xformer("(qq)")(dict())
+
     def test_variant_depth(self):
         """
         Verify that a nested variant has appropriate variant depth.
