@@ -36,7 +36,7 @@ class ParseTestCase(unittest.TestCase):
         Verify that passing a dict for an array will raise an exception.
         """
         with self.assertRaises(IntoDPUnexpectedValueError):
-            xformer("a(qq)")([dict()])
+            xformer("a(qq)")([{}])
 
     def test_bad_base_case_value(self):
         """
@@ -51,7 +51,7 @@ class ParseTestCase(unittest.TestCase):
         Verify that transforming a dict when a struct is expected fails.
         """
         with self.assertRaises(IntoDPUnexpectedValueError):
-            xformer("(qq)")(dict())
+            xformer("(qq)")({})
 
     def test_variant_depth(self):
         """
