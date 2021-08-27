@@ -16,7 +16,7 @@ def local_file(name):
     return os.path.relpath(os.path.join(os.path.dirname(__file__), name))
 
 
-with open(local_file("src/into_dbus_python/_version.py")) as o:
+with open(local_file("src/into_dbus_python/_version.py"), encoding="utf-8") as o:
     exec(o.read())  # pylint: disable=exec-used
 
 with open(local_file("README.rst"), encoding="utf=8") as o:
