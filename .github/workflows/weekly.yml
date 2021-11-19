@@ -13,9 +13,15 @@ jobs:
       matrix:
         include:
           - dependencies: black python3-isort
-            task: fmt-travis
+            task: make -f Makefile fmt-travis
           - dependencies: yamllint
-            task: yamllint
+            task: make -f Makefile yamllint
+          - dependencies: >
+              pylint
+              python3-dbus
+              python3-hs-dbus-signature
+              python3-dbus-signature-pyparsing
+            task: PYTHONPATH=./src make -f Makefile lint
     runs-on: ubuntu-latest
     container: fedora:35  # NEXT DEVELOPMENT ENVIRONMENT
     steps:
@@ -25,5 +31,5 @@ jobs:
           dnf install -y
           make
           ${{ matrix.dependencies }}
-      - name: make -f Makefile ${{ matrix.task }}
-        run: make -f Makefile ${{ matrix.task }}
+      - name: ${{ matrix.task }}
+        run: ${{ matrix.task }}
