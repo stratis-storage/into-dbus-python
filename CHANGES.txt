@@ -1,3 +1,32 @@
+into-dbus-python 0.9 (UNRELEASED)
+=================================
+Recommended development environment: Fedora 35
+Lowest supported Python interpreter: 3.9.0
+
+- Add an additional test for coverage of a type error:
+  https://github.com/stratis-storage/into-dbus-python/pull/68
+
+- Tidies and Maintenance:
+  https://github.com/stratis-storage/into-dbus-python/pull/83
+  https://github.com/stratis-storage/into-dbus-python/pull/82
+  https://github.com/stratis-storage/into-dbus-python/pull/81
+  https://github.com/stratis-storage/into-dbus-python/pull/80
+  https://github.com/stratis-storage/into-dbus-python/pull/79
+  https://github.com/stratis-storage/into-dbus-python/pull/78
+  https://github.com/stratis-storage/into-dbus-python/pull/77
+  https://github.com/stratis-storage/into-dbus-python/pull/77
+  https://github.com/stratis-storage/into-dbus-python/pull/76
+  https://github.com/stratis-storage/into-dbus-python/pull/75
+  https://github.com/stratis-storage/into-dbus-python/pull/74
+  https://github.com/stratis-storage/into-dbus-python/pull/73
+  https://github.com/stratis-storage/into-dbus-python/pull/72
+  https://github.com/stratis-storage/into-dbus-python/pull/71
+  https://github.com/stratis-storage/into-dbus-python/pull/70
+  https://github.com/stratis-storage/into-dbus-python/pull/69
+  https://github.com/stratis-storage/into-dbus-python/pull/67
+  https://github.com/stratis-storage/into-dbus-python/pull/66
+
+
 into-dbus-python 0.8
 ====================
 
