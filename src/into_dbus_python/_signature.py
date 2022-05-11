@@ -53,8 +53,7 @@ def signature(dbus_object, *, unpack=False):
         len_sigs = len(sigs)
         if len_sigs > 1:
             raise IntoDPSignatureError(
-                "the dbus-python Array object %s has items with varying signatures"
-                % dbus_object,
+                f"the dbus-python Array object {dbus_object} has items with varying signatures",
                 dbus_object,
             )
 
@@ -78,8 +77,8 @@ def signature(dbus_object, *, unpack=False):
             # It seems impossible to force a dbus-python Dictionary value
             # to have this property; the Dictionary constructor prevents it.
             raise IntoDPSignatureError(
-                "the dbus-python Dictionary object %s does not have a valid signature"
-                % dbus_object,
+                f"the dbus-python Dictionary object {dbus_object} "
+                f"does not have a valid signature",
                 dbus_object,
             )  # pragma: no cover
 
@@ -87,8 +86,8 @@ def signature(dbus_object, *, unpack=False):
             # It seems impossible to force a dbus-python Dictionary value
             # to have this property; the Dictionary constructor prevents it.
             raise IntoDPSignatureError(
-                "the dbus-python Dictionary object %s has different signatures for different keys"
-                % dbus_object,
+                f"the dbus-python Dictionary object {dbus_object} "
+                f"has different signatures for different keys",
                 dbus_object,
             )  # pragma: no cover
 

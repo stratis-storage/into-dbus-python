@@ -159,7 +159,7 @@ class _ToDbusXformer(Parser):
                 """
                 if isinstance(a_list, dict):
                     raise IntoDPUnexpectedValueError(
-                        "expected a list for an array but found a dict: %s" % a_list,
+                        f"expected a list for an array but found a dict: {a_list}",
                         a_list,
                     )
                 elements = [func(x) for x in a_list]
@@ -200,14 +200,14 @@ class _ToDbusXformer(Parser):
             """
             if isinstance(a_list, dict):
                 raise IntoDPUnexpectedValueError(
-                    "expected a simple sequence for the fields of a struct but found a dict: %s"
-                    % a_list,
+                    f"expected a simple sequence for the fields of a struct "
+                    f"but found a dict: {a_list}",
                     a_list,
                 )
             if len(a_list) != len(funcs):
                 raise IntoDPUnexpectedValueError(
-                    "expected %u elements for a struct, but found %u"
-                    % (len(funcs), len(a_list)),
+                    f"expected {len(funcs)} elements for a struct, "
+                    f"but found {len(a_list)}",
                     a_list,
                 )
             elements = [f(x) for (f, x) in zip(funcs, a_list)]
@@ -333,8 +333,7 @@ def xformer(signature):
         """
         if len(objects) != len(funcs):
             raise IntoDPUnexpectedValueError(
-                "expected %u items to transform but found %u"
-                % (len(funcs), len(objects)),
+                f"expected {len(funcs)} items to transform but found {len(objects)}",
                 objects,
             )
         return [f(a) for (f, a) in zip(funcs, objects)]
