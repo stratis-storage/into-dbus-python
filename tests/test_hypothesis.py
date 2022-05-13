@@ -187,7 +187,7 @@ class ParseTestCase(unittest.TestCase):
 
     @given(
         dbus_signatures(min_complete_types=1, blacklist="h")
-        .map(lambda s: "(%s)" % s)
+        .map(lambda s: f"({s})")
         .flatmap(
             lambda s: strategies.tuples(
                 strategies.just(s), STRATEGY_GENERATOR.parseString(s, parseAll=True)[0]
