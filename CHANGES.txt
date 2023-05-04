@@ -1,3 +1,15 @@
+into-dbus-python 0.8.2
+======================
+Recommended development environment: Fedora 38
+Lowest supported Python interpreter: 3.9
+
+- Fix entry in setup.cfg:
+  https://github.com/stratis-storage/into-dbus-python/pull/101
+
+- Tidies and Maintenance:
+  https://github.com/stratis-storage/into-dbus-python/pull/102
+
+
 into-dbus-python 0.8.1
 ======================
 Recommended development environment: Fedora 38
