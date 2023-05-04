@@ -17,4 +17,5 @@ Top-level file for xformer.
 
 from ._errors import IntoDPError
 from ._signature import signature
+from ._version import __version__
 from ._xformer import xformer, xformers
