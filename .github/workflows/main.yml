@@ -43,6 +43,8 @@ jobs:
             task: >
               PYTHONPATH=./src:../usr/local/lib/python3.11/site-packages
               make -f Makefile coverage
+          - dependencies: python python3-build twine
+            task: make -f Makefile package
     runs-on: ubuntu-latest
     container: fedora:38  # CURRENT DEVELOPMENT ENVIRONMENT
     steps:
