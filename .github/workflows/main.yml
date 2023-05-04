@@ -57,3 +57,42 @@ jobs:
         run: pip install --root=.. hs-dbus-signature
       - name: ${{ matrix.task }}
         run: ${{ matrix.task }}
+
+  lowest_environment_checks:
+    strategy:
+      matrix:
+        include:
+          - dependencies: >
+              pylint
+              python3-dbus
+              python3-dbus-signature-pyparsing
+              python3-hypothesis
+              python3-hs-dbus-signature
+            task: PYTHONPATH=./src make -f Makefile lint
+          - dependencies: >
+              python3-dbus
+              python3-dbus-signature-pyparsing
+              python3-hypothesis
+              python3-hs-dbus-signature
+            task: PYTHONPATH=./src make -f Makefile test
+          - dependencies: >
+              python3-setuptools
+              python3-dbus
+              python3-dbus-signature-pyparsing
+              python3-hypothesis
+              python3-hs-dbus-signature
+            task: make legacy-package
+    runs-on: ubuntu-latest
+    container: fedora:34  # LOWEST DEVELOPMENT ENVIRONMENT
+    steps:
+      - name: Display Python version
+        run: python3 --version
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: >
+          dnf install -y
+          make
+          pip
+          ${{ matrix.dependencies }}
+      - name: ${{ matrix.task }}
+        run: ${{ matrix.task }}
