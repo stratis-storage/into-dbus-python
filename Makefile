@@ -31,3 +31,8 @@ upload-release:
 .PHONY: yamllint
 yamllint:
 	yamllint --strict .github/workflows/main.yml
+
+.PHONY: legacy-package
+legacy-package:
+	python3 setup.py build
+	python3 setup.py install
