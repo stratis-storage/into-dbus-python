@@ -1,4 +1,0 @@
-recursive-include src/into_dbus_python *.py
-recursive-include tests *.py
-include LICENSE README.rst
-include setup.py setup.cfg
