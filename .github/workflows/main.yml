@@ -26,23 +26,19 @@ jobs:
               python3-dbus-signature-pyparsing
               python3-hypothesis
             task: >
-              PYTHONPATH=./src:../usr/local/lib/python3.11/site-packages
+              PYTHONPATH=./src:/github/home/.local/lib/python3.11/site-packages
               make -f Makefile lint
           - dependencies: >
               python3-dbus
               python3-dbus-signature-pyparsing
               python3-hypothesis
-            task: >
-              PYTHONPATH=./src:../usr/local/lib/python3.11/site-packages
-              make -f Makefile test
+            task: PYTHONPATH=./src make -f Makefile test
           - dependencies: >
               python3-coverage
               python3-dbus
               python3-dbus-signature-pyparsing
               python3-hypothesis
-            task: >
-              PYTHONPATH=./src:../usr/local/lib/python3.11/site-packages
-              make -f Makefile coverage
+            task: PYTHONPATH=./src make -f Makefile coverage
           - dependencies: python python3-build twine
             task: make -f Makefile package
     runs-on: ubuntu-latest
@@ -56,7 +52,7 @@ jobs:
           pip
           ${{ matrix.dependencies }}
       - name: Install hs-dbus-signature
-        run: pip install --root=.. hs-dbus-signature
+        run: pip install --user hs-dbus-signature
       - name: ${{ matrix.task }}
         run: ${{ matrix.task }}
 
@@ -94,7 +90,6 @@ jobs:
         run: >
           dnf install -y
           make
-          pip
           ${{ matrix.dependencies }}
       - name: ${{ matrix.task }}
         run: ${{ matrix.task }}
