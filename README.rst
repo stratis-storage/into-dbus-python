@@ -21,7 +21,7 @@ into the correct dbus types. If the Introspectable interface is unavailable,
 dbus-python will guess the signature by recursively examining the values of
 the arguments, and will then proceed the same as before. If the signature
 contains a 'v', indicating a variant type, dbus-python must guess the type
-of the correspdoning value. dbus-python can be instructed not to make use of
+of the corresponding value. dbus-python can be instructed not to make use of
 dbus introspection by setting the introspect parameter to false in the
 appropriate methods.
 
