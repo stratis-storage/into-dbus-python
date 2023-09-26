@@ -71,7 +71,7 @@ New dependency version requirement:
 - Extend _wrapper function around generated functions to take variant_level:
   https://github.com/stratis-storage/into-dbus-python/pull/30
 
-- Add additional exceptions in error heirarchy:
+- Add additional exceptions in error hierarchy:
   https://github.com/stratis-storage/into-dbus-python/pull/35
 
 - Split tests into deterministic and hypothesis-based:

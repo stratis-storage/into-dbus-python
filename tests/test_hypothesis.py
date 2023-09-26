@@ -167,7 +167,7 @@ class ParseTestCase(unittest.TestCase):
     @settings(deadline=None, suppress_health_check=[HealthCheck.too_slow])
     def test_parsing(self, strat):
         """
-        Test that parsing is always succesful.
+        Test that parsing is always successful.
 
         Verify that the original signature corresponds to the signature
         returned by the parser and to the signature of the generated value.
