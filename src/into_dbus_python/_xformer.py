@@ -17,6 +17,7 @@ Transforming Python basic types to Python dbus types.
 
 # isort: STDLIB
 import functools
+from collections.abc import Sequence
 
 # isort: THIRDPARTY
 import dbus
@@ -157,9 +158,9 @@ class _ToDbusXformer(Parser):
                 :returns: a dbus Array of transformed values
                 :rtype: Array
                 """
-                if isinstance(a_list, dict):
+                if not isinstance(a_list, Sequence):
                     raise IntoDPUnexpectedValueError(
-                        f"expected a list for an array but found a dict: {a_list}",
+                        f"expected a list for an array but found something else: {a_list}",
                         a_list,
                     )
                 elements = [func(x) for x in a_list]
@@ -198,10 +199,10 @@ class _ToDbusXformer(Parser):
             :rtype: Struct
             :raises IntoDPRuntimeError:
             """
-            if isinstance(a_list, dict):
+            if not isinstance(a_list, Sequence):
                 raise IntoDPUnexpectedValueError(
                     f"expected a simple sequence for the fields of a struct "
-                    f"but found a dict: {a_list}",
+                    f"but found something else: {a_list}",
                     a_list,
                 )
             if len(a_list) != len(funcs):
