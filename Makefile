@@ -3,6 +3,13 @@ lint:
 	pylint setup.py
 	pylint src/into_dbus_python
 	pylint tests
+	bandit setup.py
+	# Ignore B101 errors. We do not distribute optimized code, i.e., .pyo
+	# files in Fedora, so we do not need to have concerns that assertions
+	# are removed by optimization.
+	bandit --recursive ./src --skip B101
+	bandit --recursive ./tests
+	pyright
 
 .PHONY: test
 test:

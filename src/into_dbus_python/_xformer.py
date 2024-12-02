@@ -18,6 +18,7 @@ Transforming Python basic types to Python dbus types.
 # isort: STDLIB
 import functools
 from collections.abc import Sequence
+from typing import Any
 
 # isort: THIRDPARTY
 import dbus
@@ -148,7 +149,7 @@ class _ToDbusXformer(Parser):
         if len(toks) == 2:
             (func, sig) = toks[1]
 
-            def the_array_func(a_list, *, variant=0):
+            def the_array_func(a_list: Sequence[Any], *, variant=0):
                 """
                 Function for generating an Array from a list.
 
@@ -188,7 +189,7 @@ class _ToDbusXformer(Parser):
         signature = "".join(s for (_, s) in subtrees)
         funcs = [f for (f, _) in subtrees]
 
-        def the_func(a_list, *, variant=0):
+        def the_func(a_list: Sequence[Any], *, variant=0):
             """
             Function for generating a Struct from a list.
 
@@ -290,9 +291,13 @@ class _ToDbusXformer(Parser):
 
         self.VARIANT.setParseAction(self._handle_variant)
 
-        self.ARRAY.setParseAction(_ToDbusXformer._handle_array)
+        self.ARRAY.setParseAction(  # pyright: ignore [ reportOptionalMemberAccess ]
+            _ToDbusXformer._handle_array
+        )
 
-        self.STRUCT.setParseAction(_ToDbusXformer._handle_struct)
+        self.STRUCT.setParseAction(  # pyright: ignore [ reportOptionalMemberAccess ]
+            _ToDbusXformer._handle_struct
+        )
 
 
 _XFORMER = _ToDbusXformer()

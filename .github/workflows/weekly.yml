@@ -17,13 +17,14 @@ jobs:
           - dependencies: yamllint
             task: make -f Makefile yamllint
           - dependencies: >
+              bandit
               pylint
               python3-dbus
               python3-dbus-signature-pyparsing
               python-hypothesis
             task: >
-              PYTHONPATH=./src:/github/home/.local/lib/python3.12/site-packages
-              make -f Makefile lint
+              PATH=${PATH}:/github/home/.local/bin
+              PYTHONPATH=./src make -f Makefile lint
     runs-on: ubuntu-latest
     container: fedora:41  # NEXT DEVELOPMENT ENVIRONMENT
     steps:
@@ -36,5 +37,7 @@ jobs:
           ${{ matrix.dependencies }}
       - name: Install hs-dbus-signature
         run: pip install --user hs-dbus-signature
+      - name: Install pyright
+        run: pip install --user pyright
       - name: ${{ matrix.task }}
         run: ${{ matrix.task }}
