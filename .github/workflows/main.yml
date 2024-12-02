@@ -21,13 +21,14 @@ jobs:
           - dependencies: yamllint
             task: make -f Makefile yamllint
           - dependencies: >
+              bandit
               pylint
               python3-dbus
               python3-dbus-signature-pyparsing
               python3-hypothesis
             task: >
-              PYTHONPATH=./src:/github/home/.local/lib/python3.12/site-packages
-              make -f Makefile lint
+              PATH=${PATH}:/github/home/.local/bin
+              PYTHONPATH=./src make -f Makefile lint
           - dependencies: >
               python3-dbus
               python3-dbus-signature-pyparsing
@@ -53,6 +54,8 @@ jobs:
           ${{ matrix.dependencies }}
       - name: Install hs-dbus-signature
         run: pip install --user hs-dbus-signature
+      - name: Install pyright
+        run: pip install --user pyright
       - name: ${{ matrix.task }}
         run: ${{ matrix.task }}
 
@@ -61,12 +64,15 @@ jobs:
       matrix:
         include:
           - dependencies: >
+              bandit
               pylint
               python3-dbus
               python3-dbus-signature-pyparsing
               python3-hypothesis
               python3-hs-dbus-signature
-            task: PYTHONPATH=./src make -f Makefile lint
+            task: >
+              PATH=${PATH}:/github/home/.local/bin
+              PYTHONPATH=./src make -f Makefile lint
           - dependencies: >
               python3-dbus
               python3-dbus-signature-pyparsing
@@ -90,6 +96,9 @@ jobs:
         run: >
           dnf install -y
           make
+          pip
           ${{ matrix.dependencies }}
+      - name: Install pyright
+        run: pip install --user pyright
       - name: ${{ matrix.task }}
         run: ${{ matrix.task }}
