@@ -1,3 +1,27 @@
+into-dbus-python 0.8.3
+======================
+Recommended development environment: Fedora 40
+Lowest supported Python interpreter: 3.9
+
+- Use typing module for exactly one purpose:
+  https://github.com/stratis-storage/into-dbus-python/pull/115
+
+- Tidies and Maintenance:
+  https://github.com/stratis-storage/into-dbus-python/pull/117
+  https://github.com/stratis-storage/into-dbus-python/pull/116
+  https://github.com/stratis-storage/into-dbus-python/pull/114
+  https://github.com/stratis-storage/into-dbus-python/pull/113
+  https://github.com/stratis-storage/into-dbus-python/pull/112
+  https://github.com/stratis-storage/into-dbus-python/pull/111
+  https://github.com/stratis-storage/into-dbus-python/pull/110
+  https://github.com/stratis-storage/into-dbus-python/pull/109
+  https://github.com/stratis-storage/into-dbus-python/pull/108
+  https://github.com/stratis-storage/into-dbus-python/pull/107
+  https://github.com/stratis-storage/into-dbus-python/pull/106
+  https://github.com/stratis-storage/into-dbus-python/pull/105
+  https://github.com/stratis-storage/into-dbus-python/pull/104
+
+
 into-dbus-python 0.8.2
 ======================
 Recommended development environment: Fedora 38
