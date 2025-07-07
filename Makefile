@@ -1,3 +1,9 @@
+ifeq ($(origin MONKEYTYPE), undefined)
+  PYTHON = python3
+else
+  PYTHON = MONKEYTYPE_TRACE_MODULES=into_dbus_python monkeytype run
+endif
+
 .PHONY: lint
 lint:
 	pylint setup.py
@@ -13,7 +19,7 @@ lint:
 
 .PHONY: test
 test:
-	python3 -m unittest discover --verbose tests
+	${PYTHON} -m unittest discover --verbose tests
 
 .PHONY: coverage
 coverage:
