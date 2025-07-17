@@ -291,13 +291,9 @@ class _ToDbusXformer(Parser):
 
         self.VARIANT.setParseAction(self._handle_variant)
 
-        self.ARRAY.setParseAction(  # pyright: ignore [ reportOptionalMemberAccess ]
-            _ToDbusXformer._handle_array
-        )
+        self.ARRAY.setParseAction(_ToDbusXformer._handle_array)
 
-        self.STRUCT.setParseAction(  # pyright: ignore [ reportOptionalMemberAccess ]
-            _ToDbusXformer._handle_struct
-        )
+        self.STRUCT.setParseAction(_ToDbusXformer._handle_struct)
 
 
 _XFORMER = _ToDbusXformer()
