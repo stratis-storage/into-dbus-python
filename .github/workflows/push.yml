@@ -1,0 +1,63 @@
+---
+name: on push
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+    branches: [master]
+
+  pull_request:
+    branches: [master]
+
+  workflow_dispatch:
+
+jobs:
+  monkeytype:
+    runs-on: ubuntu-24.04
+    container:
+      image: fedora:41  # CURRENT DEVELOPMENT ENVIRONMENT
+    steps:
+      - name: Install dependencies for Fedora
+        run: >
+          dnf install -y
+          bandit
+          black
+          git
+          make
+          monkeytype
+          pip
+          pylint
+          python3-dbus
+          python3-dbus-signature-pyparsing
+          python3-hypothesis
+          python3-isort
+      - name: Install hs-dbus-signature
+        run: pip install --user hs-dbus-signature
+      - uses: actions/checkout@v4
+        with:
+          path: into-dbus-python
+      - name: Run with monkeytype
+        run: >
+          MONKEYTYPE=1
+          PYTHONPATH=./src:/github/home/.local/lib/python3.13/site-packages
+          make test
+        # tests may fail due to timeouts, call traces should be fine
+        continue-on-error: true
+        working-directory: into-dbus-python
+      - name: Apply annotations
+        run: PYTHONPATH=./src make apply
+        working-directory: into-dbus-python
+      - name: Format result
+        run: make fmt
+        working-directory: into-dbus-python
+      - name: Install pyright
+        run: pip install --user pyright
+      - name: Lint result
+        run: >
+          PATH=${PATH}:/github/home/.local/bin
+          PYTHONPATH=./src make -f Makefile lint
+        working-directory: into-dbus-python
+        continue-on-error: true
+      - name: Diff the result
+        run: git diff --exit-code
+        working-directory: into-dbus-python
