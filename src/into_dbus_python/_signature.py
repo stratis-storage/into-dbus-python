@@ -15,13 +15,16 @@
 Definition of signature method.
 """
 
+# isort: STDLIB
+from typing import Any
+
 # isort: THIRDPARTY
 import dbus
 
 from ._errors import IntoDPSignatureError
 
 
-def signature(dbus_object, *, unpack=False):
+def signature(dbus_object: Any, *, unpack=False) -> str:
     """
     Get the signature of a dbus object.
 

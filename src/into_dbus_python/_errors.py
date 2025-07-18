@@ -14,6 +14,11 @@
 """
 Error hierarchy for xformer generator.
 """
+# isort: STDLIB
+from typing import Any, Union
+
+# isort: THIRDPARTY
+from dbus import Array
 
 
 class IntoDPError(Exception):
@@ -47,7 +52,7 @@ class IntoDPUnexpectedValueError(IntoDPRuntimeError):
     transformation.
     """
 
-    def __init__(self, message, value):
+    def __init__(self, message: str, value: Any):
         """
         Initializer.
 
@@ -82,7 +87,7 @@ class IntoDPSignatureError(IntoDPError):
     Exception raised when a value does not seem to have a valid signature.
     """
 
-    def __init__(self, message, value):
+    def __init__(self, message: str, value: Union[str, Array]):
         """
         Initializer.
 

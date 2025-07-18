@@ -18,7 +18,7 @@ Transforming Python basic types to Python dbus types.
 # isort: STDLIB
 import functools
 from collections.abc import Sequence
-from typing import Any
+from typing import Any, Callable, List, Tuple, Union
 
 # isort: THIRDPARTY
 import dbus
@@ -34,7 +34,7 @@ from ._errors import (
 )
 
 
-def _wrapper(func):
+def _wrapper(func: Callable) -> Callable:
     """
     Wraps a generated function so that it catches all unexpected errors and
     raises IntoDPSurprisingErrors.
@@ -80,7 +80,7 @@ class _ToDbusXformer(Parser):
 
     # pylint: disable=too-few-public-methods
 
-    def _handle_variant(self):
+    def _handle_variant(self) -> Tuple[Callable, str]:
         """
         Generate the correct function for a variant signature.
 
@@ -114,7 +114,7 @@ class _ToDbusXformer(Parser):
         return (the_func, "v")
 
     @staticmethod
-    def _handle_array(toks):
+    def _handle_array(toks) -> Tuple[Callable, str]:
         """
         Generate the correct function for an array signature.
 
@@ -177,7 +177,7 @@ class _ToDbusXformer(Parser):
         )  # pragma: no cover
 
     @staticmethod
-    def _handle_struct(toks):
+    def _handle_struct(toks) -> Tuple[Callable, str]:
         """
         Generate the correct function for a struct signature.
 
@@ -220,7 +220,7 @@ class _ToDbusXformer(Parser):
         return (the_func, "(" + signature + ")")
 
     @staticmethod
-    def _handle_base_case(klass, symbol):
+    def _handle_base_case(klass: Any, symbol: str) -> Callable:
         """
         Handle a base case.
 
@@ -299,7 +299,7 @@ class _ToDbusXformer(Parser):
 _XFORMER = _ToDbusXformer()
 
 
-def xformers(sig):
+def xformers(sig: str) -> List[Union[Tuple[Callable, str], Any]]:
     """
     Get the list of xformer functions for the given signature.
 
@@ -312,7 +312,7 @@ def xformers(sig):
     ]
 
 
-def xformer(signature):
+def xformer(signature: str) -> Callable:
     """
     Returns a transformer function for the given signature.
 
