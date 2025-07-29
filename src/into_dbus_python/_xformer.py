@@ -299,7 +299,7 @@ class _ToDbusXformer(Parser):
 _XFORMER = _ToDbusXformer()
 
 
-def xformers(sig: str) -> List[Union[Tuple[Callable, str], Any]]:
+def xformers(sig: str) -> List[Union[Any, Tuple[Callable, str]]]:
     """
     Get the list of xformer functions for the given signature.
 

@@ -9,9 +9,11 @@ MONKEYTYPE_MODULES = into_dbus_python._signature
 .PHONY: lint
 lint:
 	pylint setup.py
+	pylint monkeytype_config.py
 	pylint src/into_dbus_python
 	pylint tests
 	bandit setup.py
+	bandit monkeytype_config.py
 	# Ignore B101 errors. We do not distribute optimized code, i.e., .pyo
 	# files in Fedora, so we do not need to have concerns that assertions
 	# are removed by optimization.
@@ -31,7 +33,7 @@ coverage:
 
 .PHONY: fmt
 fmt:
-	isort setup.py src tests
+	isort setup.py src tests monkeytype_config.py
 	black .
 
 .PHONY: fmt-travis
