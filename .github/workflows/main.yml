@@ -60,7 +60,7 @@ jobs:
       - name: ${{ matrix.task }}
         run: ${{ matrix.task }}
 
-  lowest_environment_checks:
+  lowest_supported_python:
     strategy:
       matrix:
         include:
@@ -68,18 +68,28 @@ jobs:
               python3-dbus
               python3-dbus-signature-pyparsing
               python3-hypothesis
-              python3-hs-dbus-signature
             task: PYTHONPATH=./src make -f Makefile test
           - dependencies: >
               python3-setuptools
               python3-dbus
               python3-dbus-signature-pyparsing
               python3-hypothesis
-              python3-hs-dbus-signature
             task: make legacy-package
     runs-on: ubuntu-latest
-    container: fedora:35  # LOWEST DEVELOPMENT ENVIRONMENT
+    container: fedora:41  # CURRENT DEVELOPMENT ENVIRONMENT
     steps:
+      - name: Install python3.12
+        run: >
+          dnf install -y
+          alternatives
+          python3.12
+      - name: Set python3 to python3.12
+        run: >
+          alternatives
+          --install /usr/bin/python3
+          python3
+          /usr/bin/python3.12
+          10
       - name: Display Python version
         run: python3 --version
       - uses: actions/checkout@v4
@@ -91,5 +101,7 @@ jobs:
           ${{ matrix.dependencies }}
       - name: Install pyright
         run: pip install --user pyright
+      - name: Install hs-dbus-signature
+        run: pip install --user hs-dbus-signature
       - name: ${{ matrix.task }}
         run: ${{ matrix.task }}
