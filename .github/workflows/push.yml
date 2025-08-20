@@ -33,7 +33,7 @@ jobs:
           python3-isort
       - name: Install hs-dbus-signature
         run: pip install --user hs-dbus-signature
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           path: into-dbus-python
       - name: Run with monkeytype
