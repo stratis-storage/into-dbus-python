@@ -36,6 +36,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           path: into-dbus-python
+          persist-credentials: false
       - name: Run with monkeytype
         run: >
           MONKEYTYPE=1
