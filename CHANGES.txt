@@ -3,10 +3,18 @@ into-dbus-python 0.8.3
 Recommended development environment: Fedora 40
 Lowest supported Python interpreter: 3.9
 
+- Remove license classifier deprecated by PEP 639:
+  https://github.com/stratis-storage/into-dbus-python/pull/118
+
 - Use typing module for exactly one purpose:
   https://github.com/stratis-storage/into-dbus-python/pull/115
 
 - Tidies and Maintenance:
+  https://github.com/stratis-storage/into-dbus-python/pull/123
+  https://github.com/stratis-storage/into-dbus-python/pull/122
+  https://github.com/stratis-storage/into-dbus-python/pull/121
+  https://github.com/stratis-storage/into-dbus-python/pull/120
+  https://github.com/stratis-storage/into-dbus-python/pull/119
   https://github.com/stratis-storage/into-dbus-python/pull/117
   https://github.com/stratis-storage/into-dbus-python/pull/116
   https://github.com/stratis-storage/into-dbus-python/pull/114
