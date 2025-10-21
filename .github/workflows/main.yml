@@ -22,6 +22,7 @@ jobs:
             task: make -f Makefile yamllint
           - dependencies: >
               bandit
+              libatomic
               monkeytype
               pylint
               python3-dbus
@@ -44,7 +45,7 @@ jobs:
           - dependencies: python python3-build twine
             task: make -f Makefile package
     runs-on: ubuntu-latest
-    container: fedora:41  # CURRENT DEVELOPMENT ENVIRONMENT
+    container: fedora:42  # CURRENT DEVELOPMENT ENVIRONMENT
     steps:
       - uses: actions/checkout@v5
         with:
@@ -72,7 +73,7 @@ jobs:
               python3-hypothesis
             task: PYTHONPATH=./src make -f Makefile test
     runs-on: ubuntu-latest
-    container: fedora:41  # CURRENT DEVELOPMENT ENVIRONMENT
+    container: fedora:42  # CURRENT DEVELOPMENT ENVIRONMENT
     steps:
       - name: Install python3.12
         run: >
