@@ -156,6 +156,28 @@ class ParseTestCase(unittest.TestCase):
     """
 
     @given(
+        strategies.tuples(
+            dbus_signatures(
+                min_complete_types=1,
+                max_complete_types=1,
+                exclude_arrays=True,
+                exclude_dicts=True,
+                exclude_structs=True,
+                blacklist="v",
+            ),
+            dbus_signatures(min_complete_types=1, max_complete_types=1),
+        )
+    )
+    @settings(max_examples=5)
+    def test_empty_dict(self, strat):
+        """
+        Test parsing an empty dict with a valid signature.
+        """
+        (key_sig, value_sig) = strat
+        sig = f"{key_sig}{value_sig}"
+        self.assertEqual(signature(dbus.Dictionary(signature=sig)), "a{" + sig + "}")
+
+    @given(
         dbus_signatures(
             min_complete_types=1, max_complete_types=1, blacklist="h"
         ).flatmap(
