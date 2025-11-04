@@ -4,6 +4,8 @@ else
   PYTHON = MONKEYTYPE_TRACE_MODULES=into_dbus_python monkeytype run
 endif
 
+ISORT_MODULES = monkeytype_config.py setup.py src tests
+
 MONKEYTYPE_MODULES = into_dbus_python._signature
 
 .PHONY: lint
@@ -33,12 +35,12 @@ coverage:
 
 .PHONY: fmt
 fmt:
-	isort setup.py src tests monkeytype_config.py
+	isort ${ISORT_MODULES}
 	black .
 
 .PHONY: fmt-travis
 fmt-travis:
-	isort --diff --check-only setup.py src tests
+	isort --diff --check-only ${ISORT_MODULES}
 	black . --check
 
 .PHONY: upload-release
