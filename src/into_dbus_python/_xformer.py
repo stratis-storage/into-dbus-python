@@ -99,8 +99,8 @@ class _ToDbusXformer(Parser):
             :rtype: object
             """
             try:
-                (signature, an_obj) = a_tuple
-                (func, sig) = self.COMPLETE.parseString(signature)[0]
+                signature, an_obj = a_tuple
+                func, sig = self.COMPLETE.parseString(signature)[0]
             # Allow KeyboardInterrupt error to be propagated
             except KeyboardInterrupt as err:  # pragma: no cover
                 raise err
@@ -147,7 +147,7 @@ class _ToDbusXformer(Parser):
             return (the_dict_func, "a{" + signature + "}")
 
         if len(toks) == 2:
-            (func, sig) = toks[1]
+            func, sig = toks[1]
 
             def the_array_func(a_list: Sequence[Any], *, variant=0):
                 """

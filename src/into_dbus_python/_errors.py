@@ -14,6 +14,7 @@
 """
 Error hierarchy for xformer generator.
 """
+
 # isort: STDLIB
 from typing import Any, Union
 

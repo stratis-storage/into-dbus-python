@@ -173,7 +173,7 @@ class ParseTestCase(unittest.TestCase):
         """
         Test parsing an empty dict with a valid signature.
         """
-        (key_sig, value_sig) = strat
+        key_sig, value_sig = strat
         sig = f"{key_sig}{value_sig}"
         self.assertEqual(signature(dbus.Dictionary(signature=sig)), "a{" + sig + "}")
 
@@ -197,9 +197,9 @@ class ParseTestCase(unittest.TestCase):
         Verify that the variant levels always descend within the constructed
         value.
         """
-        (a_signature, base_type_object) = strat
+        a_signature, base_type_object = strat
 
-        (func, sig_synth) = xformers(a_signature)[0]
+        func, sig_synth = xformers(a_signature)[0]
         value = func(base_type_object)
         sig_orig = dbus.Signature(a_signature)
 
@@ -224,7 +224,7 @@ class ParseTestCase(unittest.TestCase):
         Test exception throwing on a struct signature when number of items
         is not equal to number of complete types in struct signature.
         """
-        (sig, struct) = strat
+        sig, struct = strat
 
         xform = xformer(sig)
 
