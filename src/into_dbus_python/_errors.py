@@ -15,10 +15,8 @@
 Error hierarchy for xformer generator.
 """
 
-# isort: STDLIB
 from typing import Any, Union
 
-# isort: THIRDPARTY
 from dbus import Array
 
 

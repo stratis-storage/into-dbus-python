@@ -15,16 +15,14 @@
 Definition of signature method.
 """
 
-# isort: STDLIB
 from typing import Any
 
-# isort: THIRDPARTY
 import dbus
 
 from ._errors import IntoDPSignatureError
 
 
-def signature(dbus_object: Any, *, unpack=False) -> str:
+def signature(dbus_object: Any, *, unpack=False) -> str:  # noqa: PLR0911, PLR0912
     """
     Get the signature of a dbus object.
 
@@ -34,9 +32,6 @@ def signature(dbus_object: Any, *, unpack=False) -> str:
     :returns: the corresponding signature
     :rtype: str
     """
-    # pylint: disable=too-many-return-statements
-    # pylint: disable=too-many-branches
-
     # The object passed may not be a dbus object, and consequently may not
     # have a variant_level attribute.
     if not hasattr(dbus_object, "variant_level"):

@@ -15,13 +15,10 @@
 Deterministic tests of signature parsing and calculation.
 """
 
-# isort: STDLIB
 import unittest
 
-# isort: THIRDPARTY
 import dbus
 
-# isort: LOCAL
 from into_dbus_python import signature, xformer
 from into_dbus_python._errors import IntoDPSignatureError, IntoDPUnexpectedValueError
 
@@ -115,7 +112,6 @@ class SignatureTestCase(unittest.TestCase):
                 object.
                 """
 
-                # pylint: disable=too-few-public-methods
                 variant_level = 0
 
             signature(TestObject())
