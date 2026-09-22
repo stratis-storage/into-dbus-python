@@ -15,20 +15,15 @@
 Hypothesis-based tests of signature parsing and calculation.
 """
 
-# isort: STDLIB
 import string
 import unittest
 from os import sys
 
-# isort: THIRDPARTY
 import dbus
 from hypothesis import HealthCheck, example, given, settings, strategies
 
-# isort: FIRSTPARTY
 from dbus_signature_pyparsing import Parser
 from hs_dbus_signature import dbus_signatures
-
-# isort: LOCAL
 from into_dbus_python import signature, xformer, xformers
 from into_dbus_python._errors import IntoDPUnexpectedValueError
 
@@ -68,8 +63,6 @@ class StrategyGenerator(Parser):
     dbus signature which make use of base Python classes.
     """
 
-    # pylint: disable=too-few-public-methods
-
     @staticmethod
     def _handle_array(toks):
         """
@@ -80,20 +73,19 @@ class StrategyGenerator(Parser):
         :rtype: strategy
         """
 
-        if len(toks) == 5 and toks[1] == "{" and toks[4] == "}":
+        if len(toks) == 5 and toks[1] == "{" and toks[4] == "}":  # noqa: PLR2004
             return strategies.dictionaries(keys=toks[2], values=toks[3], max_size=20)
-        if len(toks) == 2:
+        if len(toks) == 2:  # noqa: PLR2004
             return strategies.lists(elements=toks[1], max_size=20)
         raise ValueError("unexpected tokens")  # pragma: no cover
 
     def __init__(self):
         super().__init__()
 
-        # pylint: disable=unnecessary-lambda
         self.BYTE.setParseAction(
             lambda: strategies.integers(min_value=0, max_value=255)
         )
-        self.BOOLEAN.setParseAction(lambda: strategies.booleans())
+        self.BOOLEAN.setParseAction(lambda: strategies.booleans())  # noqa: PLW0108
         self.INT16.setParseAction(
             lambda: strategies.integers(min_value=-0x8000, max_value=0x7FFF)
         )
@@ -114,9 +106,9 @@ class StrategyGenerator(Parser):
         self.UINT64.setParseAction(
             lambda: strategies.integers(min_value=0, max_value=0xFFFFFFFFFFFFFFFF)
         )
-        self.DOUBLE.setParseAction(lambda: strategies.floats())
+        self.DOUBLE.setParseAction(lambda: strategies.floats())  # noqa: PLW0108
 
-        self.STRING.setParseAction(lambda: strategies.text())
+        self.STRING.setParseAction(lambda: strategies.text())  # noqa: PLW0108
         self.OBJECT_PATH.setParseAction(lambda: OBJECT_PATH_STRATEGY)
         self.SIGNATURE.setParseAction(lambda: SIGNATURE_STRATEGY)
 

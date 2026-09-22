@@ -2,9 +2,7 @@ ISORT_MODULES = setup.py src tests
 
 .PHONY: lint
 lint:
-	pylint setup.py
-	pylint src/into_dbus_python
-	pylint tests
+	ruff check
 	pyright
 
 .PHONY: test
@@ -19,13 +17,13 @@ coverage:
 
 .PHONY: fmt
 fmt:
-	isort ${ISORT_MODULES}
-	black .
+	ruff check --fix --select I
+	ruff format
 
-.PHONY: fmt-travis
-fmt-travis:
-	isort --diff --check-only ${ISORT_MODULES}
-	black . --check
+.PHONY: fmt-ci
+fmt-ci:
+	ruff check --select I
+	ruff format --check
 
 .PHONY: upload-release
 upload-release:
