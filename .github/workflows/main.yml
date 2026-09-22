@@ -21,7 +21,6 @@ jobs:
               python3-dbus
               python3-dbus-signature-pyparsing
               python3-hypothesis
-              python3-setuptools
               ruff
             task: >
               PATH=${PATH}:/github/home/.local/bin
