@@ -1,5 +1,3 @@
-ISORT_MODULES = setup.py src tests
-
 .PHONY: lint
 lint:
 	ruff check
@@ -24,10 +22,6 @@ fmt:
 fmt-ci:
 	ruff check --select I
 	ruff format --check
-
-.PHONY: upload-release
-upload-release:
-	python setup.py register sdist upload
 
 .PHONY: yamllint
 yamllint:
