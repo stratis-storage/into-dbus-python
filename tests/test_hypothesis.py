@@ -16,8 +16,8 @@ Hypothesis-based tests of signature parsing and calculation.
 """
 
 import string
+import sys
 import unittest
-from os import sys
 
 import dbus
 from hypothesis import HealthCheck, example, given, settings, strategies
