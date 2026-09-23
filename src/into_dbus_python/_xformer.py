@@ -16,7 +16,7 @@ Transforming Python basic types to Python dbus types.
 """
 
 import functools
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from typing import Any, Callable, List, Tuple, Union
 
 import dbus
@@ -144,7 +144,9 @@ class _ToDbusXformer(Parser):
         if len(toks) == 2:  # noqa: PLR2004
             func, sig = toks[1]
 
-            def the_array_func(a_list: Sequence[Any], *, variant=0):
+            def the_array_func(
+                a_list: Iterable[Any], *, variant: int = 0
+            ) -> dbus.types.Array:
                 """
                 Function for generating an Array from a list.
 
@@ -154,9 +156,9 @@ class _ToDbusXformer(Parser):
                 :returns: a dbus Array of transformed values
                 :rtype: Array
                 """
-                if not isinstance(a_list, Sequence):
+                if not isinstance(a_list, Iterable):
                     raise IntoDPUnexpectedValueError(
-                        f"expected a list for an array but found something else: {a_list}",
+                        f"expected an Iterable for an array but found something else: {a_list}",
                         a_list,
                     )
                 elements = [func(x) for x in a_list]

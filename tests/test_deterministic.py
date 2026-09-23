@@ -30,10 +30,10 @@ class ParseTestCase(unittest.TestCase):
 
     def test_bad_array_value(self):
         """
-        Verify that passing a dict for an array will raise an exception.
+        Verify that passing a non-Iterable for an array will raise an exception.
         """
         with self.assertRaises(IntoDPUnexpectedValueError):
-            xformer("a(qq)")([{}])
+            xformer("a(qq)")([1])
 
     def test_bad_base_case_value(self):
         """
