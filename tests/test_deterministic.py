@@ -45,10 +45,11 @@ class ParseTestCase(unittest.TestCase):
 
     def test_bad_struct_value(self):
         """
-        Verify that transforming a dict when a struct is expected fails.
+        Verify that transforming a non-Collection when a struct is expected
+        fails.
         """
         with self.assertRaises(IntoDPUnexpectedValueError):
-            xformer("(qq)")(({32: 1, 64: 32},))
+            xformer("(qq)")([(x for x in [32])])
 
     def test_variant_depth(self):
         """
