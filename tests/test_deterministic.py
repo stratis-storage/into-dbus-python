@@ -83,6 +83,14 @@ class ParseTestCase(unittest.TestCase):
             ),
         )
 
+    def test_mismatched_lengths(self):
+        """
+        Verify that an exception is raised if the number of functions and
+        the number of objects to transform is different.
+        """
+        with self.assertRaises(IntoDPUnexpectedValueError):
+            xformer("a(qq)")([1, 1])
+
 
 class SignatureTestCase(unittest.TestCase):
     """
