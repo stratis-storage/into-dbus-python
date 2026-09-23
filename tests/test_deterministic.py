@@ -91,6 +91,13 @@ class ParseTestCase(unittest.TestCase):
         with self.assertRaises(IntoDPUnexpectedValueError):
             xformer("a(qq)")([1, 1])
 
+    def test_bad_variant_signature(self):
+        """
+        Verify that a bad signature in a variant tuple raises an error.
+        """
+        with self.assertRaises(IntoDPUnexpectedValueError):
+            xformer("v")([("z", [])])
+
 
 class SignatureTestCase(unittest.TestCase):
     """
