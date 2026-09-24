@@ -1,3 +1,11 @@
+into-dbus-python 0.8.4
+======================
+Recommended development environment: Fedora 44
+
+- Relax Sequence restriction for Array argument:
+  https://github.com/stratis-storage/into-dbus-python/pull/138
+
+
 into-dbus-python 0.8.3
 ======================
 Recommended development environment: Fedora 44
