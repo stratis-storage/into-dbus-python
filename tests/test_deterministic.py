@@ -30,10 +30,10 @@ class ParseTestCase(unittest.TestCase):
 
     def test_bad_array_value(self):
         """
-        Verify that passing a dict for an array will raise an exception.
+        Verify that passing a non-Iterable for an array will raise an exception.
         """
         with self.assertRaises(IntoDPUnexpectedValueError):
-            xformer("a(qq)")([{}])
+            xformer("a(qq)")([1])
 
     def test_bad_base_case_value(self):
         """
@@ -45,10 +45,11 @@ class ParseTestCase(unittest.TestCase):
 
     def test_bad_struct_value(self):
         """
-        Verify that transforming a dict when a struct is expected fails.
+        Verify that transforming a non-Collection when a struct is expected
+        fails.
         """
         with self.assertRaises(IntoDPUnexpectedValueError):
-            xformer("(qq)")(({32: 1, 64: 32},))
+            xformer("(qq)")([(x for x in [32])])
 
     def test_variant_depth(self):
         """
@@ -82,6 +83,21 @@ class ParseTestCase(unittest.TestCase):
                 variant_level=0,
             ),
         )
+
+    def test_mismatched_lengths(self):
+        """
+        Verify that an exception is raised if the number of functions and
+        the number of objects to transform is different.
+        """
+        with self.assertRaises(IntoDPUnexpectedValueError):
+            xformer("a(qq)")([1, 1])
+
+    def test_bad_variant_signature(self):
+        """
+        Verify that a bad signature in a variant tuple raises an error.
+        """
+        with self.assertRaises(IntoDPUnexpectedValueError):
+            xformer("v")([("z", [])])
 
 
 class SignatureTestCase(unittest.TestCase):

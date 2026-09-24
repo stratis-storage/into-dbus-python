@@ -16,7 +16,7 @@ Transforming Python basic types to Python dbus types.
 """
 
 import functools
-from collections.abc import Sequence
+from collections.abc import Collection, Iterable
 from typing import Any, Callable, List, Tuple, Union
 
 import dbus
@@ -144,7 +144,9 @@ class _ToDbusXformer(Parser):
         if len(toks) == 2:  # noqa: PLR2004
             func, sig = toks[1]
 
-            def the_array_func(a_list: Sequence[Any], *, variant=0):
+            def the_array_func(
+                a_list: Iterable[Any], *, variant: int = 0
+            ) -> dbus.types.Array:
                 """
                 Function for generating an Array from a list.
 
@@ -154,9 +156,9 @@ class _ToDbusXformer(Parser):
                 :returns: a dbus Array of transformed values
                 :rtype: Array
                 """
-                if not isinstance(a_list, Sequence):
+                if not isinstance(a_list, Iterable):
                     raise IntoDPUnexpectedValueError(
-                        f"expected a list for an array but found something else: {a_list}",
+                        f"expected an Iterable for an array but found something else: {a_list}",
                         a_list,
                     )
                 elements = [func(x) for x in a_list]
@@ -184,7 +186,7 @@ class _ToDbusXformer(Parser):
         signature = "".join(s for (_, s) in subtrees)
         funcs = [f for (f, _) in subtrees]
 
-        def the_func(a_list: Sequence[Any], *, variant=0):
+        def the_func(a_list: Collection[Any], *, variant: int = 0) -> dbus.types.Struct:
             """
             Function for generating a Struct from a list.
 
@@ -195,20 +197,21 @@ class _ToDbusXformer(Parser):
             :rtype: Struct
             :raises IntoDPRuntimeError:
             """
-            if not isinstance(a_list, Sequence):
+            if not isinstance(a_list, Collection):
                 raise IntoDPUnexpectedValueError(
                     f"expected a simple sequence for the fields of a struct "
                     f"but found something else: {a_list}",
                     a_list,
                 )
-            try:
-                elements = [f(x) for (f, x) in zip(funcs, a_list, strict=True)]
-            except ValueError as err:
+
+            if len(a_list) != len(funcs):
                 raise IntoDPUnexpectedValueError(
                     f"expected {len(funcs)} elements for a struct, "
                     f"but found {len(a_list)}",
                     a_list,
-                ) from err
+                )
+
+            elements = [f(x) for (f, x) in zip(funcs, a_list, strict=True)]
 
             return dbus.types.Struct(
                 elements, signature=signature, variant_level=variant
@@ -320,7 +323,7 @@ def xformer(signature: str) -> Callable:
 
     funcs = [f for (f, _) in xformers(signature)]
 
-    def the_func(objects):
+    def the_func(objects: Collection) -> list[Any]:
         """
         Returns the a list of objects, transformed.
 
@@ -330,12 +333,12 @@ def xformer(signature: str) -> Callable:
         :returns: transformed objects
         :rtype: list of object (in dbus types)
         """
-        try:
-            return [f(a) for (f, a) in zip(funcs, objects, strict=True)]
-        except ValueError as err:
+        if len(objects) != len(funcs):
             raise IntoDPUnexpectedValueError(
                 f"expected {len(funcs)} items to transform but found {len(objects)}",
                 objects,
-            ) from err
+            )
+
+        return [f(a) for (f, a) in zip(funcs, objects, strict=True)]
 
     return the_func

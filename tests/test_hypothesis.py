@@ -20,7 +20,7 @@ import sys
 import unittest
 
 import dbus
-from hypothesis import HealthCheck, example, given, settings, strategies
+from hypothesis import HealthCheck, given, settings, strategies
 
 from dbus_signature_pyparsing import Parser
 from hs_dbus_signature import dbus_signatures
@@ -225,22 +225,6 @@ class ParseTestCase(unittest.TestCase):
 
         with self.assertRaises(IntoDPUnexpectedValueError):
             xform([struct[:-1]])
-
-    @given(dbus_signatures(blacklist="hbs", exclude_dicts=True))
-    @settings(max_examples=100)
-    @example(sig="v")
-    def test_exceptions(self, sig):
-        """
-        Test that an exception is raised for a dict if '{' is blacklisted.
-
-        Need to also blacklist 'b' and 's', since dbus.String and dbus.Boolean
-        constructors can both convert a dict.
-        """
-
-        xform = xformer(sig)
-
-        with self.assertRaises(IntoDPUnexpectedValueError):
-            xform([{True: True}])
 
 
 class SignatureTestCase(unittest.TestCase):
